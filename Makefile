@@ -3,11 +3,11 @@ GO = go
 build: ## Build the project
 	$(GO) build -o bin/ ./...
 
-clean: ## Clean the project
-	rm -rf bin/
-
 test: ## Run the tests
 	$(GO) test -v ./...
+
+clean: ## Clean the project
+	rm -rf bin/
 
 run-api: ## Run the API
 	$(GO) run cmd/api/main.go
