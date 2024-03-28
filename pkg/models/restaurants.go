@@ -8,6 +8,14 @@ const (
 	TableStatusOccupied  = "OCCUPIED"
 )
 
+type Table struct {
+	ID        primitive.ObjectID `json:"_id" bson:"_id"`
+	Number    int                `json:"number"`
+	Url       string             `json:"url"`
+	Status    string             `json:"status"`
+	Occupants []Client           `json:"occupants"`
+}
+
 type Restaurant struct {
 	ID       primitive.ObjectID `json:"_id" bson:"_id"`
 	Name     string             `json:"name"`

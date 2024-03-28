@@ -6,6 +6,9 @@ build: ## Build the project
 clean: ## Clean the project
 	rm -rf bin/
 
+test: ## Run the tests
+	$(GO) test -v ./...
+
 run-api: ## Run the API
 	$(GO) run cmd/api/main.go
 
