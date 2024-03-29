@@ -30,7 +30,13 @@ func Connect() *mongo.Database {
 		panic(err)
 	}
 
-	db := client.Database("go-api")
+	var db *mongo.Database
+
+	if os.Getenv("ENV") == "production" {
+		db = client.Database("emenu")
+	} else {
+		db = client.Database("emenu-dev")
+	}
 
 	fmt.Println("Connected to MongoDB!")
 
