@@ -15,7 +15,7 @@ const (
 )
 
 type Order struct {
-	ID            primitive.ObjectID `json:"_id" bson:"_id"`
+	ID            primitive.ObjectID `json:"id" bson:"_id"`
 	RestaurantID  primitive.ObjectID `json:"restaurant" bson:"restaurant"`
 	TableID       string             `json:"table"`
 	Status        string             `json:"status"`
@@ -28,7 +28,7 @@ type Order struct {
 }
 
 type OrderItem struct {
-	ID          primitive.ObjectID `json:"_id" bson:"_id"`
+	ID          primitive.ObjectID `json:"id" bson:"_id"`
 	Name        string             `json:"name"`
 	Price       float64            `json:"price"`
 	Quantity    int                `json:"quantity"`
@@ -37,7 +37,7 @@ type OrderItem struct {
 }
 
 type PublicOrder struct {
-	ID           primitive.ObjectID `json:"_id" bson:"_id"`
+	ID           primitive.ObjectID `json:"id" bson:"_id"`
 	RestaurantID primitive.ObjectID `json:"restaurant" bson:"restaurant"`
 	TableID      string             `json:"table"`
 	Status       string             `json:"status"`

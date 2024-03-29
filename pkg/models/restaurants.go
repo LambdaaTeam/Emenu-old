@@ -14,7 +14,7 @@ const (
 )
 
 type Table struct {
-	ID        primitive.ObjectID `json:"_id" bson:"_id"`
+	ID        primitive.ObjectID `json:"id" bson:"_id"`
 	Number    int                `json:"number"`
 	Url       string             `json:"url"`
 	Status    string             `json:"status"`
@@ -22,7 +22,7 @@ type Table struct {
 }
 
 type Restaurant struct {
-	ID       primitive.ObjectID `json:"_id" bson:"_id"`
+	ID       primitive.ObjectID `json:"id" bson:"_id"`
 	Name     string             `json:"name"`
 	Email    string             `json:"email"`
 	Password []byte             `json:"password"`
@@ -30,7 +30,7 @@ type Restaurant struct {
 		City     string `json:"city"`
 		Country  string `json:"country"`
 		PostCode string `json:"postCode"`
-		Number   string `json:"number"`
+		Number   int    `json:"number"`
 		Street   string `json:"street"`
 		Other    string `json:"other"`
 	}
@@ -41,13 +41,13 @@ type Restaurant struct {
 }
 
 type PublicRestaurant struct {
-	ID      primitive.ObjectID `json:"_id" bson:"_id"`
+	ID      primitive.ObjectID `json:"id" bson:"_id"`
 	Name    string             `json:"name"`
 	Address struct {
 		City     string `json:"city"`
 		Country  string `json:"country"`
 		PostCode string `json:"postCode"`
-		Number   string `json:"number"`
+		Number   int    `json:"number"`
 		Street   string `json:"street"`
 		Other    string `json:"other"`
 	}
@@ -64,7 +64,7 @@ type RestaurantRegiter struct {
 		City     string `json:"city"`
 		Country  string `json:"country"`
 		PostCode string `json:"postCode"`
-		Number   string `json:"number"`
+		Number   int    `json:"number"`
 		Street   string `json:"street"`
 		Other    string `json:"other"`
 	} `json:"address"`

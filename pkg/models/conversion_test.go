@@ -120,14 +120,14 @@ func TestRestaurants(t *testing.T) {
 				City     string `json:"city"`
 				Country  string `json:"country"`
 				PostCode string `json:"postCode"`
-				Number   string `json:"number"`
+				Number   int    `json:"number"`
 				Street   string `json:"street"`
 				Other    string `json:"other"`
 			}{
 				City:     "São Paulo",
 				Country:  "Brasil",
 				PostCode: "12345678",
-				Number:   "123",
+				Number:   123,
 				Street:   "Rua Teste",
 				Other:    "Apt 123",
 			},
@@ -193,14 +193,14 @@ func TestRestaurants(t *testing.T) {
 				City     string `json:"city"`
 				Country  string `json:"country"`
 				PostCode string `json:"postCode"`
-				Number   string `json:"number"`
+				Number   int    `json:"number"`
 				Street   string `json:"street"`
 				Other    string `json:"other"`
 			}{
 				City:     "São Paulo",
 				Country:  "Brasil",
 				PostCode: "12345678",
-				Number:   "123",
+				Number:   123,
 				Street:   "Rua Test",
 				Other:    "Apt 123",
 			},

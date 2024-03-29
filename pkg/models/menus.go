@@ -3,7 +3,7 @@ package models
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type Item struct {
-	ID          primitive.ObjectID `json:"_id" bson:"_id"`
+	ID          primitive.ObjectID `json:"id" bson:"_id"`
 	Name        string             `json:"name"`
 	Description string             `json:"description"`
 	Image       string             `json:"image"`
@@ -11,13 +11,13 @@ type Item struct {
 }
 
 type Category struct {
-	ID    primitive.ObjectID `json:"_id" bson:"_id"`
+	ID    primitive.ObjectID `json:"id" bson:"_id"`
 	Name  string             `json:"name"`
 	Items []Item             `json:"items"`
 }
 
 type Menu struct {
-	ID            primitive.ObjectID `json:"_id" bson:"_id"`
+	ID            primitive.ObjectID `json:"id" bson:"_id"`
 	RestaurantID  primitive.ObjectID `json:"restaurant" bson:"restaurant"`
 	Highlights    []Item             `json:"highlights"`
 	Categories    []Category         `json:"categories"`
@@ -27,7 +27,7 @@ type Menu struct {
 }
 
 type PublicMenu struct {
-	ID           primitive.ObjectID `json:"_id" bson:"_id"`
+	ID           primitive.ObjectID `json:"id" bson:"_id"`
 	RestaurantID primitive.ObjectID `json:"restaurant" bson:"restaurant"`
 	Highlights   []Item             `json:"highlights"`
 	Categories   []Category         `json:"categories"`
