@@ -21,9 +21,9 @@ type Menu struct {
 	RestaurantID  primitive.ObjectID `json:"restaurant" bson:"restaurant"`
 	Highlights    []Item             `json:"highlights"`
 	Categories    []Category         `json:"categories"`
-	SchemaVersion int                `json:"schemaVersion"`
-	CreatedAt     int                `json:"createdAt"`
-	UpdatedAt     int                `json:"updatedAt"`
+	SchemaVersion int                `json:"schema_version"`
+	CreatedAt     int                `json:"created_at"`
+	UpdatedAt     int                `json:"updated_at"`
 }
 
 type PublicMenu struct {
@@ -31,8 +31,8 @@ type PublicMenu struct {
 	RestaurantID primitive.ObjectID `json:"restaurant" bson:"restaurant"`
 	Highlights   []Item             `json:"highlights"`
 	Categories   []Category         `json:"categories"`
-	CreatedAt    int                `json:"createdAt"`
-	UpdatedAt    int                `json:"updatedAt"`
+	CreatedAt    int                `json:"created_at"`
+	UpdatedAt    int                `json:"updated_at"`
 }
 
 func (m *Menu) ToPublic() *PublicMenu {

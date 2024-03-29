@@ -1,6 +1,11 @@
 package models
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"time"
+
+	pkg "github.com/LambdaaTeam/Emenu/pkg/auth"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 const (
 	TableStatusAvailable = "AVAILABLE"
@@ -20,7 +25,7 @@ type Restaurant struct {
 	ID       primitive.ObjectID `json:"_id" bson:"_id"`
 	Name     string             `json:"name"`
 	Email    string             `json:"email"`
-	Password string             `json:"password"`
+	Password []byte             `json:"password"`
 	Address  struct {
 		City     string `json:"city"`
 		Country  string `json:"country"`
@@ -29,10 +34,10 @@ type Restaurant struct {
 		Street   string `json:"street"`
 		Other    string `json:"other"`
 	}
-	Tables        []Table `json:"tables"`
-	SchemaVersion int     `json:"schemaVersion"`
-	CreatedAt     int     `json:"createdAt"`
-	UpdatedAt     int     `json:"updatedAt"`
+	Tables        []Table   `json:"tables"`
+	SchemaVersion int       `json:"schema_version"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 type PublicRestaurant struct {
@@ -46,9 +51,28 @@ type PublicRestaurant struct {
 		Street   string `json:"street"`
 		Other    string `json:"other"`
 	}
-	Tables    []Table `json:"tables"`
-	CreatedAt int     `json:"createdAt"`
-	UpdatedAt int     `json:"updatedAt"`
+	Tables    []Table   `json:"tables"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type RestaurantRegiter struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Address  struct {
+		City     string `json:"city"`
+		Country  string `json:"country"`
+		PostCode string `json:"postCode"`
+		Number   string `json:"number"`
+		Street   string `json:"street"`
+		Other    string `json:"other"`
+	} `json:"address"`
+}
+
+type RestaurantLogin struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 func (r *Restaurant) ToPublic() *PublicRestaurant {
@@ -59,5 +83,19 @@ func (r *Restaurant) ToPublic() *PublicRestaurant {
 		Tables:    r.Tables,
 		CreatedAt: r.CreatedAt,
 		UpdatedAt: r.UpdatedAt,
+	}
+}
+
+func (r *RestaurantRegiter) ToRestaurant() *Restaurant {
+	return &Restaurant{
+		ID:            primitive.NewObjectID(),
+		Name:          r.Name,
+		Email:         r.Email,
+		Password:      pkg.HashPassword(r.Password),
+		Address:       r.Address,
+		Tables:        []Table{},
+		SchemaVersion: 1,
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
 	}
 }

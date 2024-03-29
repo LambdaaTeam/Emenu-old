@@ -2,7 +2,9 @@ package models_test
 
 import (
 	"testing"
+	"time"
 
+	pkg "github.com/LambdaaTeam/Emenu/pkg/auth"
 	"github.com/LambdaaTeam/Emenu/pkg/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -130,8 +132,8 @@ func TestRestaurants(t *testing.T) {
 				Other:    "Apt 123",
 			},
 			Tables:    []models.Table{},
-			CreatedAt: 0,
-			UpdatedAt: 0,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
 		}
 
 		publicRestaurant := restaurant.ToPublic()
@@ -178,6 +180,84 @@ func TestRestaurants(t *testing.T) {
 
 		if publicRestaurant.UpdatedAt != restaurant.UpdatedAt {
 			t.Errorf("Expected UpdatedAt to be %v, got %v", restaurant.UpdatedAt, publicRestaurant.UpdatedAt)
+		}
+	})
+
+	t.Run("TestRestaurantRegiterToRestaurant", func(t *testing.T) {
+		// TestRestaurantRegiterToRestaurant tests the conversion of a RestaurantRegiter to a Restaurant
+		restaurantRegister := models.RestaurantRegiter{
+			Name:     "Test Restaurant",
+			Email:    "test@email.com",
+			Password: "123456",
+			Address: struct {
+				City     string `json:"city"`
+				Country  string `json:"country"`
+				PostCode string `json:"postCode"`
+				Number   string `json:"number"`
+				Street   string `json:"street"`
+				Other    string `json:"other"`
+			}{
+				City:     "São Paulo",
+				Country:  "Brasil",
+				PostCode: "12345678",
+				Number:   "123",
+				Street:   "Rua Test",
+				Other:    "Apt 123",
+			},
+		}
+
+		restaurant := restaurantRegister.ToRestaurant()
+
+		if restaurant.Name != restaurantRegister.Name {
+			t.Errorf("Expected Name to be %v, got %v", restaurantRegister.Name, restaurant.Name)
+		}
+
+		if restaurant.Email != restaurantRegister.Email {
+			t.Errorf("Expected Email to be %v, got %v", restaurantRegister.Email, restaurant.Email)
+		}
+
+		if !pkg.IsPasswordValid(restaurant.Password, restaurantRegister.Password) {
+			t.Errorf("Expected Password to be hashed, got %v", restaurant.Password)
+		}
+
+		if restaurant.Address.City != restaurantRegister.Address.City {
+			t.Errorf("Expected Address.City to be %v, got %v", restaurantRegister.Address.City, restaurant.Address.City)
+		}
+
+		if restaurant.Address.Country != restaurantRegister.Address.Country {
+			t.Errorf("Expected Address.Country to be %v, got %v", restaurantRegister.Address.Country, restaurant.Address.Country)
+		}
+
+		if restaurant.Address.PostCode != restaurantRegister.Address.PostCode {
+			t.Errorf("Expected Address.PostCode to be %v, got %v", restaurantRegister.Address.PostCode, restaurant.Address.PostCode)
+		}
+
+		if restaurant.Address.Number != restaurantRegister.Address.Number {
+			t.Errorf("Expected Address.Number to be %v, got %v", restaurantRegister.Address.Number, restaurant.Address.Number)
+		}
+
+		if restaurant.Address.Street != restaurantRegister.Address.Street {
+			t.Errorf("Expected Address.Street to be %v, got %v", restaurantRegister.Address.Street, restaurant.Address.Street)
+		}
+
+		if restaurant.Address.Other != restaurantRegister.Address.Other {
+			t.Errorf("Expected Address.Other to be %v, got %v", restaurantRegister.Address.Other, restaurant.Address.Other)
+		}
+
+		if len(restaurant.Tables) != 0 {
+			t.Errorf("Expected Tables to be empty, got %v", restaurant.Tables)
+		}
+
+		if restaurant.SchemaVersion != 1 {
+			t.Errorf("Expected SchemaVersion to be 1, got %v", restaurant.SchemaVersion)
+		}
+
+		if restaurant.CreatedAt.IsZero() {
+			t.Errorf("Expected CreatedAt to be set, got %v", restaurant.CreatedAt)
+		}
+
+		if restaurant.UpdatedAt.IsZero() {
+			t.Errorf("Expected UpdatedAt to be set, got %v", restaurant.UpdatedAt)
 		}
 	})
 }

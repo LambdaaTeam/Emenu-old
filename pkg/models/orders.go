@@ -22,9 +22,9 @@ type Order struct {
 	Value         float64            `json:"value"`
 	Client        Client             `json:"client"`
 	Items         []OrderItem        `json:"items"`
-	SchemaVersion int                `json:"schemaVersion"`
-	CreatedAt     int                `json:"createdAt"`
-	UpdatedAt     int                `json:"updatedAt"`
+	SchemaVersion int                `json:"schema_version"`
+	CreatedAt     int                `json:"created_at"`
+	UpdatedAt     int                `json:"updated_at"`
 }
 
 type OrderItem struct {
@@ -44,8 +44,8 @@ type PublicOrder struct {
 	Value        float64            `json:"value"`
 	Client       Client             `json:"client"`
 	Items        []OrderItem        `json:"items"`
-	CreatedAt    int                `json:"createdAt"`
-	UpdatedAt    int                `json:"updatedAt"`
+	CreatedAt    int                `json:"created_at"`
+	UpdatedAt    int                `json:"updated_at"`
 }
 
 func (o *Order) ToPublic() *PublicOrder {
