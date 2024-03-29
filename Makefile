@@ -1,5 +1,7 @@
 GO = go
 
+.DEFAULT_GOAL := help
+
 build: ## Build the project
 	$(GO) build -o bin/ ./...
 
@@ -18,8 +20,7 @@ run-shortener: ## Run the Shortener
 run-ws: ## Run the WS Server
 	$(GO) run cmd/ws/main.go
 
-## Display this help message
-help:
+help: ## Display this help message
 	@echo "Usage: make [target]"
 	@echo ""
 	@echo "Targets:"
