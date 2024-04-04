@@ -14,3 +14,7 @@ insert_final_newline = false
 # set default for Makefile
 [Makefile]
 indent_style = tab
+
+[*.yml]
+indent_style = space
+indent_size = 2

@@ -1,4 +1,4 @@
-GO = go
+GO=go
 
 .DEFAULT_GOAL := help
 
@@ -10,6 +10,9 @@ test: ## Run the tests
 
 clean: ## Clean the project
 	rm -rf bin/
+
+install: ## Install project dependencies
+	$(GO) mod download && go mod verify
 
 run-api: ## Run the API
 	$(GO) run cmd/api/main.go
