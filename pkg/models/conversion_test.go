@@ -185,7 +185,7 @@ func TestRestaurants(t *testing.T) {
 
 	t.Run("TestRestaurantRegiterToRestaurant", func(t *testing.T) {
 		// TestRestaurantRegiterToRestaurant tests the conversion of a RestaurantRegiter to a Restaurant
-		restaurantRegister := models.RestaurantRegiter{
+		restaurantRegister := models.RestaurantRegister{
 			Name:     "Test Restaurant",
 			Email:    "test@email.com",
 			Password: "123456",

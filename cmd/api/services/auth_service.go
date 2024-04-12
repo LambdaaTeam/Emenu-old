@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func Register(payload models.RestaurantRegiter) (*models.PublicRestaurant, error) {
+func Register(payload models.RestaurantRegister) (*models.PublicRestaurant, error) {
 	restaurant := payload.ToRestaurant()
 
 	_, err := database.GetCollection("restaurants").InsertOne(context.TODO(), restaurant)

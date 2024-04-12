@@ -56,7 +56,7 @@ type PublicRestaurant struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type RestaurantRegiter struct {
+type RestaurantRegister struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -86,7 +86,7 @@ func (r *Restaurant) ToPublic() *PublicRestaurant {
 	}
 }
 
-func (r *RestaurantRegiter) ToRestaurant() *Restaurant {
+func (r *RestaurantRegister) ToRestaurant() *Restaurant {
 	return &Restaurant{
 		ID:            primitive.NewObjectID(),
 		Name:          r.Name,

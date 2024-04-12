@@ -9,7 +9,7 @@ import (
 )
 
 func Register(c *gin.Context) {
-	var payload models.RestaurantRegiter
+	var payload models.RestaurantRegister
 
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
