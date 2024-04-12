@@ -10,10 +10,10 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func Register(payload models.RestaurantRegister) (*models.PublicRestaurant, error) {
+func Register(ctx context.Context, payload models.RestaurantRegister) (*models.PublicRestaurant, error) {
 	restaurant := payload.ToRestaurant()
 
-	_, err := database.GetCollection("restaurants").InsertOne(context.TODO(), restaurant)
+	_, err := database.GetCollection("restaurants").InsertOne(ctx, restaurant)
 
 	if err != nil {
 		return nil, err
@@ -24,9 +24,9 @@ func Register(payload models.RestaurantRegister) (*models.PublicRestaurant, erro
 	return publicRestaurant, nil
 }
 
-func Login(payload models.RestaurantLogin) (*models.PublicRestaurant, error) {
+func Login(ctx context.Context, payload models.RestaurantLogin) (*models.PublicRestaurant, error) {
 	var restaurant models.Restaurant
-	err := database.GetCollection("restaurants").FindOne(context.TODO(), bson.M{"email": payload.Email}).Decode(&restaurant)
+	err := database.GetCollection("restaurants").FindOne(ctx, bson.M{"email": payload.Email}).Decode(&restaurant)
 
 	if err != nil {
 		return nil, err
