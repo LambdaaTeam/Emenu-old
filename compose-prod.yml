@@ -72,7 +72,7 @@ services:
       - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
     environment:
-      - NGINX_PROXY_CONTAINER=proxy
+      - NGINX_PROXY_CONTAINER=emenu-proxy
       - LETSENCRYPT_EMAIL=emenu@psykka.xyz
       - LETSENCRYPT_HOST=emenu.psykka.xyz
 
