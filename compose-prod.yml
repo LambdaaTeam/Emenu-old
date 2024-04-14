@@ -53,7 +53,7 @@ services:
       - html:/usr/share/nginx/html
 
   letsencrypt:
-    image: jrcs/letsencrypt-nginx-proxy-companion
+    image: jrcs/letsencrypt-nginx-proxy-companion:latest
     container_name: emenu-letsencrypt
     networks:
       - nginx-proxy
