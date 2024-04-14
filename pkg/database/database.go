@@ -11,7 +11,7 @@ import (
 
 var DB *mongo.Database
 
-func Connect() *mongo.Database {
+func Connect(dbname string) *mongo.Database {
 	uri := os.Getenv("DATABASE_URL")
 
 	if uri == "" {
@@ -30,13 +30,7 @@ func Connect() *mongo.Database {
 		panic(err)
 	}
 
-	var db *mongo.Database
-
-	if os.Getenv("ENV") == "production" {
-		db = client.Database("emenu")
-	} else {
-		db = client.Database("emenu-dev")
-	}
+	db := client.Database(dbname)
 
 	fmt.Println("Connected to MongoDB!")
 

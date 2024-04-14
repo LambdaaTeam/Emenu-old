@@ -12,11 +12,14 @@ import (
 func init() {
 	godotenv.Load(".env")
 
+	dbName := "emenu-dev"
+
 	if os.Getenv("ENV") == "production" {
 		gin.SetMode(gin.ReleaseMode)
+		dbName = "emenu"
 	}
 
-	database.DB = database.Connect()
+	database.DB = database.Connect(dbName)
 }
 
 func main() {
