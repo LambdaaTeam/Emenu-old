@@ -6,6 +6,7 @@ volumes:
   certs:
   vhost:
   html:
+  acme:
 
 services:
   api:
@@ -14,30 +15,42 @@ services:
     restart: always
     networks:
       - nginx-proxy
+    depends_on:
+      - letsencrypt
+      - proxy
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - VIRTUAL_HOST=api.emenu.psykka.xyz
+      - LETSENCRYPT_HOST=api.emenu.psykka.xyz
       - ENV=production
 
   # ws:
   #   image: ghcr.io/lambdaateam/emenu/ws:main
   #   container_name: emenu-ws
   #   restart: always
+  #   depends_on:
+  #     - letsencrypt
+  #     - proxy
   #   networks:
   #     - nginx-proxy
   #   environment:
   #     - VIRTUAL_HOST=ws.emenu.psykka.xyz
+  #     - LETSENCRYPT_HOST=ws.emenu.psykka.xyz
   #     - ENV=production
 
   short:
     image: ghcr.io/lambdaateam/emenu/shortener:main
     container_name: emenu-short
     restart: always
+    depends_on:
+      - letsencrypt
+      - proxy
     networks:
       - nginx-proxy
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - VIRTUAL_HOST=short.emenu.psykka.xyz
+      - LETSENCRYPT_HOST=short.emenu.psykka.xyz
       - ENV=production
   
   proxy:
@@ -46,9 +59,6 @@ services:
     restart: always
     networks:
       - nginx-proxy
-    depends_on:
-      - api
-      - short
     ports:
       - "80:80"
       - "443:443"
@@ -59,19 +69,18 @@ services:
       - html:/usr/share/nginx/html
 
   letsencrypt:
-    image: jrcs/letsencrypt-nginx-proxy-companion:latest
+    image: nginxproxy/acme-companion
     container_name: emenu-letsencrypt
+    restart: always
     networks:
       - nginx-proxy
     depends_on:
       - proxy
+    environment:
+      - DEFAULT_EMAIL=emenu@psykka.xyz
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - certs:/etc/nginx/certs:rw
       - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
-    environment:
-      - NGINX_PROXY_CONTAINER=emenu-proxy
-      - LETSENCRYPT_EMAIL=emenu@psykka.xyz
-      - LETSENCRYPT_HOST=emenu.psykka.xyz
-
+      - acme:/etc/acme.sh
