@@ -1,0 +1,69 @@
+networks:
+  nginx-proxy:
+    external: true
+
+volumes:
+  certs:
+  vhost:
+  html:
+
+services:
+  api:
+    image: ghcr.io/lambdaateam/emenu/api
+    container_name: emenu-api
+    restart: always
+    networks:
+      - nginx-proxy
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - VIRTUAL_HOST=api.emenu.psykka.xyz
+
+  ws:
+    image: ghcr.io/lambdaateam/emenu/ws
+    container_name: emenu-ws
+    restart: always
+    networks:
+      - nginx-proxy
+    environment:
+      - VIRTUAL_HOST=ws.emenu.psykka.xyz
+
+  short:
+    image: ghcr.io/lambdaateam/emenu/shortener
+    container_name: emenu-short
+    restart: always
+    networks:
+      - nginx-proxy
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - VIRTUAL_HOST=short.emenu.psykka.xyz
+  
+  proxy:
+    image: jwilder/nginx-proxy:alpine
+    container_name: emenu-proxy
+    restart: always
+    networks:
+      - nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - certs:/etc/nginx/certs:ro
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+
+  letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: emenu-letsencrypt
+    networks:
+      - nginx-proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - certs:/etc/nginx/certs:rw
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+    environment:
+      - NGINX_PROXY_CONTAINER=proxy
+      - LETSENCRYPT_EMAIL=emenu@psykka.xyz
+      - LETSENCRYPT_HOST=emenu.psykka.xyz
+

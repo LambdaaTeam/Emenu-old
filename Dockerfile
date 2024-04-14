@@ -16,4 +16,7 @@ WORKDIR /app
 
 COPY --from=builder /workspace/app .
 
+ENV PORT=8080
+EXPOSE 8080
+
 CMD ["./app"]
