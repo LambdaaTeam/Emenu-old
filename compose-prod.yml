@@ -9,7 +9,7 @@ volumes:
 
 services:
   api:
-    image: ghcr.io/lambdaateam/emenu/api
+    image: ghcr.io/lambdaateam/emenu/api:main
     container_name: emenu-api
     restart: always
     networks:
@@ -19,7 +19,7 @@ services:
       - VIRTUAL_HOST=api.emenu.psykka.xyz
 
   ws:
-    image: ghcr.io/lambdaateam/emenu/ws
+    image: ghcr.io/lambdaateam/emenu/ws:main
     container_name: emenu-ws
     restart: always
     networks:
@@ -28,7 +28,7 @@ services:
       - VIRTUAL_HOST=ws.emenu.psykka.xyz
 
   short:
-    image: ghcr.io/lambdaateam/emenu/shortener
+    image: ghcr.io/lambdaateam/emenu/shortener:main
     container_name: emenu-short
     restart: always
     networks:
