@@ -17,15 +17,17 @@ services:
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - VIRTUAL_HOST=api.emenu.psykka.xyz
+      - ENV=production
 
-  ws:
-    image: ghcr.io/lambdaateam/emenu/ws:main
-    container_name: emenu-ws
-    restart: always
-    networks:
-      - nginx-proxy
-    environment:
-      - VIRTUAL_HOST=ws.emenu.psykka.xyz
+  # ws:
+  #   image: ghcr.io/lambdaateam/emenu/ws:main
+  #   container_name: emenu-ws
+  #   restart: always
+  #   networks:
+  #     - nginx-proxy
+  #   environment:
+  #     - VIRTUAL_HOST=ws.emenu.psykka.xyz
+  #     - ENV=production
 
   short:
     image: ghcr.io/lambdaateam/emenu/shortener:main
@@ -36,6 +38,7 @@ services:
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - VIRTUAL_HOST=short.emenu.psykka.xyz
+      - ENV=production
   
   proxy:
     image: jwilder/nginx-proxy:alpine
