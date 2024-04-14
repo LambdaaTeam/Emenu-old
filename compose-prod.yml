@@ -78,6 +78,7 @@ services:
       - proxy
     environment:
       - DEFAULT_EMAIL=emenu@psykka.xyz
+      - NGINX_PROXY_CONTAINER=emenu-proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - certs:/etc/nginx/certs:rw
