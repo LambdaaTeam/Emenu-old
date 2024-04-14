@@ -48,7 +48,6 @@ services:
       - nginx-proxy
     depends_on:
       - api
-      - ws
       - short
     ports:
       - "80:80"
