@@ -1,6 +1,6 @@
 networks:
   nginx-proxy:
-    external: true
+    external: false
 
 volumes:
   certs:
