@@ -15,13 +15,13 @@ install: ## Install project dependencies
 	$(GO) mod download && go mod verify
 
 run-api: ## Run the API
-	$(GO) run cmd/api/main.go
+	$(GO) run ./cmd/api
 
 run-shortener: ## Run the Shortener
-	$(GO) run cmd/shortener/main.go
+	$(GO) run ./cmd/shortener
 
 run-ws: ## Run the WS Server
-	$(GO) run cmd/ws/main.go
+	$(GO) run ./cmd/ws
 
 help: ## Display this help message
 	@echo "Usage: make [target]"
