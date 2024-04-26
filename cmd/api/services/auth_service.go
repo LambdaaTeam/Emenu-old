@@ -21,7 +21,6 @@ func Register(ctx context.Context, payload models.RestaurantRegister) (*models.P
 		return nil, err
 	}
 
-	// create a new menu for the restaurant
 	menu := models.Menu{
 		ID:            primitive.NewObjectID(),
 		RestaurantID:  restaurant.ID,

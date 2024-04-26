@@ -130,6 +130,10 @@ func UpdateTable(ctx context.Context, restaurantID string, tableID string, param
 			restaurant.Tables[i] = params
 			restaurant.Tables[i].ID = tableObjID
 
+			if restaurant.Tables[i].Occupants == nil {
+				restaurant.Tables[i].Occupants = []models.Client{}
+			}
+
 			_, err = database.GetCollection("restaurants").UpdateOne(
 				ctx,
 				bson.M{"_id": objID},
