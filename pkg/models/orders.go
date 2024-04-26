@@ -1,6 +1,12 @@
 package models
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
+
+const OrderCurrentSchemaVersion = 1
 
 const (
 	OrderStatusOpen   = "PENDING"
@@ -23,8 +29,8 @@ type Order struct {
 	Client        Client             `json:"client"`
 	Items         []OrderItem        `json:"items"`
 	SchemaVersion int                `json:"schema_version"`
-	CreatedAt     int                `json:"created_at"`
-	UpdatedAt     int                `json:"updated_at"`
+	CreatedAt     time.Time          `json:"created_at"`
+	UpdatedAt     time.Time          `json:"updated_at"`
 }
 
 type OrderItem struct {
@@ -44,8 +50,8 @@ type PublicOrder struct {
 	Value        float64            `json:"value"`
 	Client       Client             `json:"client"`
 	Items        []OrderItem        `json:"items"`
-	CreatedAt    int                `json:"created_at"`
-	UpdatedAt    int                `json:"updated_at"`
+	CreatedAt    time.Time          `json:"created_at"`
+	UpdatedAt    time.Time          `json:"updated_at"`
 }
 
 func (o *Order) ToPublic() *PublicOrder {

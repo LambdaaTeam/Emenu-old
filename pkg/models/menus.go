@@ -1,6 +1,12 @@
 package models
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
+
+const MenuCurrentSchemaVersion = 1
 
 type Item struct {
 	ID          primitive.ObjectID `json:"id" bson:"_id"`
@@ -10,10 +16,16 @@ type Item struct {
 	Price       float64            `json:"price"`
 }
 
-type Category struct {
+type Subcategory struct {
 	ID    primitive.ObjectID `json:"id" bson:"_id"`
 	Name  string             `json:"name"`
 	Items []Item             `json:"items"`
+}
+
+type Category struct {
+	ID   primitive.ObjectID `json:"id" bson:"_id"`
+	Name string             `json:"name"`
+	Sub  []Subcategory      `json:"sub"`
 }
 
 type Menu struct {
@@ -22,8 +34,8 @@ type Menu struct {
 	Highlights    []Item             `json:"highlights"`
 	Categories    []Category         `json:"categories"`
 	SchemaVersion int                `json:"schema_version"`
-	CreatedAt     int                `json:"created_at"`
-	UpdatedAt     int                `json:"updated_at"`
+	CreatedAt     time.Time          `json:"created_at"`
+	UpdatedAt     time.Time          `json:"updated_at"`
 }
 
 type PublicMenu struct {
@@ -31,8 +43,8 @@ type PublicMenu struct {
 	RestaurantID primitive.ObjectID `json:"restaurant" bson:"restaurant"`
 	Highlights   []Item             `json:"highlights"`
 	Categories   []Category         `json:"categories"`
-	CreatedAt    int                `json:"created_at"`
-	UpdatedAt    int                `json:"updated_at"`
+	CreatedAt    time.Time          `json:"created_at"`
+	UpdatedAt    time.Time          `json:"updated_at"`
 }
 
 func (m *Menu) ToPublic() *PublicMenu {

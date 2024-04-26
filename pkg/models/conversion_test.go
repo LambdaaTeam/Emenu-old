@@ -17,8 +17,8 @@ func TestMenus(t *testing.T) {
 			RestaurantID: primitive.NewObjectID(),
 			Highlights:   []models.Item{},
 			Categories:   []models.Category{},
-			CreatedAt:    0,
-			UpdatedAt:    0,
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
 		}
 
 		publicMenu := menu.ToPublic()
@@ -63,8 +63,8 @@ func TestOrders(t *testing.T) {
 				CPF:  "12345678900",
 			},
 			Items:     []models.OrderItem{},
-			CreatedAt: 0,
-			UpdatedAt: 0,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
 		}
 
 		publicOrder := order.ToPublic()

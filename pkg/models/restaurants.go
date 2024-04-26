@@ -7,6 +7,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+const RestaurantCurrentSchemaVersion = 1
+
 const (
 	TableStatusAvailable = "AVAILABLE"
 	TableStatusReserved  = "RESERVED"
@@ -94,7 +96,7 @@ func (r *RestaurantRegister) ToRestaurant() *Restaurant {
 		Password:      pkg.HashPassword(r.Password),
 		Address:       r.Address,
 		Tables:        []Table{},
-		SchemaVersion: 1,
+		SchemaVersion: RestaurantCurrentSchemaVersion,
 		CreatedAt:     time.Now(),
 		UpdatedAt:     time.Now(),
 	}

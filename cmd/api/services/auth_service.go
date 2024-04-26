@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"time"
 
 	pkg "github.com/LambdaaTeam/Emenu/pkg/auth"
 	"github.com/LambdaaTeam/Emenu/pkg/database"
@@ -14,6 +15,22 @@ func Register(ctx context.Context, payload models.RestaurantRegister) (*models.P
 	restaurant := payload.ToRestaurant()
 
 	_, err := database.GetCollection("restaurants").InsertOne(ctx, restaurant)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// create a new menu for the restaurant
+	menu := models.Menu{
+		RestaurantID:  restaurant.ID,
+		Highlights:    []models.Item{},
+		Categories:    []models.Category{},
+		SchemaVersion: models.MenuCurrentSchemaVersion,
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
+	}
+
+	_, err = database.GetCollection("menus").InsertOne(ctx, menu)
 
 	if err != nil {
 		return nil, err

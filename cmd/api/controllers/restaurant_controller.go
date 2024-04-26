@@ -27,14 +27,17 @@ func GetOneRestaurant(c *gin.Context) {
 func CreateTable(c *gin.Context) {
 	restaurantID := c.Param("id")
 
-	var tablePayload models.Table
+	var tablePayload struct {
+		Number int `json:"number" binding:"required"`
+	}
+
 	if err := c.ShouldBindJSON(&tablePayload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input, please check your data"})
 		return
 	}
 
 	ctx := c.Request.Context()
-	table, err := services.CreateTable(ctx, restaurantID, tablePayload)
+	table, err := services.CreateTable(ctx, restaurantID, tablePayload.Number)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"failed to create a new table": err.Error()})
 		return

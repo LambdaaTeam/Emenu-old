@@ -75,7 +75,7 @@ func GetTableById(ctx context.Context, restaurantID string, tableID string) (*mo
 	return nil, fmt.Errorf("table not found")
 }
 
-func CreateTable(ctx context.Context, id string, params models.Table) (*models.Table, error) {
+func CreateTable(ctx context.Context, id string, number int) (*models.Table, error) {
 	var restaurant models.Restaurant
 
 	objID, err := primitive.ObjectIDFromHex(id)
@@ -88,12 +88,13 @@ func CreateTable(ctx context.Context, id string, params models.Table) (*models.T
 		return nil, fmt.Errorf("restaurant not found")
 	}
 
+	// TODO: generate a unique URL
 	table := models.Table{
 		ID:        primitive.NewObjectID(),
-		Number:    params.Number,
-		Url:       params.Url,
-		Status:    params.Status,
-		Occupants: params.Occupants,
+		Number:    number,
+		Url:       "",
+		Status:    models.TableStatusAvailable,
+		Occupants: []models.Client{},
 	}
 
 	restaurant.Tables = append(restaurant.Tables, table)
