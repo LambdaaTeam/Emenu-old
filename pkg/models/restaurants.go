@@ -31,7 +31,7 @@ type Restaurant struct {
 	Address  struct {
 		City     string `json:"city"`
 		Country  string `json:"country"`
-		PostCode string `json:"postCode"`
+		PostCode string `json:"post_code"`
 		Number   int    `json:"number"`
 		Street   string `json:"street"`
 		Other    string `json:"other"`
@@ -48,7 +48,7 @@ type PublicRestaurant struct {
 	Address struct {
 		City     string `json:"city"`
 		Country  string `json:"country"`
-		PostCode string `json:"postCode"`
+		PostCode string `json:"post_code"`
 		Number   int    `json:"number"`
 		Street   string `json:"street"`
 		Other    string `json:"other"`
@@ -65,7 +65,7 @@ type RestaurantRegister struct {
 	Address  struct {
 		City     string `json:"city"`
 		Country  string `json:"country"`
-		PostCode string `json:"postCode"`
+		PostCode string `json:"post_code"`
 		Number   int    `json:"number"`
 		Street   string `json:"street"`
 		Other    string `json:"other"`

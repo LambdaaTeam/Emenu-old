@@ -9,6 +9,7 @@ import (
 	"github.com/LambdaaTeam/Emenu/pkg/database"
 	"github.com/LambdaaTeam/Emenu/pkg/models"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func Register(ctx context.Context, payload models.RestaurantRegister) (*models.PublicRestaurant, error) {
@@ -22,6 +23,7 @@ func Register(ctx context.Context, payload models.RestaurantRegister) (*models.P
 
 	// create a new menu for the restaurant
 	menu := models.Menu{
+		ID:            primitive.NewObjectID(),
 		RestaurantID:  restaurant.ID,
 		Highlights:    []models.Item{},
 		Categories:    []models.Category{},

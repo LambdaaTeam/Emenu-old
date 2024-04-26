@@ -18,6 +18,11 @@ func Register(c *gin.Context) {
 		return
 	}
 
+	if payload.Email == "" || payload.Name == "" || payload.Password == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "email, name and password are required"})
+		return
+	}
+
 	restaurant, err := services.Register(ctx, payload)
 
 	if err != nil {
