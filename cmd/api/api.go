@@ -25,7 +25,7 @@ func init() {
 
 func main() {
 	r := gin.Default()
-	
+
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
 	r.Use(cors.New(config))
@@ -36,12 +36,14 @@ func main() {
 	{
 		v1.POST("/login", controllers.Login)
 		v1.POST("/register", controllers.Register)
-		v1.GET("/restaurants/:id", controllers.GetOneRestaurant) 
+		v1.GET("/restaurants/:id", controllers.GetOneRestaurant)
 		v1.GET("/restaurants/:id/tables", controllers.GetAllTables)
 		v1.GET("/restaurants/:id/tables/:tableId", controllers.GetTableById)
 		v1.POST("/restaurants/:id/tables", controllers.CreateTable)
 		v1.PATCH("/restaurants/:id/tables/:tableId", controllers.UpdateTable)
 		v1.DELETE("/restaurants/:id/tables/:tableId", controllers.DeleteTable)
+		v1.GET("/restaurants/:id/orders", controllers.GetOrders)
+		v1.GET("/restaurants/:id/orders/:orderId", controllers.GetOrderByID)
 	}
 
 	r.Run()

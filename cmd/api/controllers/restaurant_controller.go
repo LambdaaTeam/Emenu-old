@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/LambdaaTeam/Emenu/cmd/api/services"
 	"github.com/LambdaaTeam/Emenu/pkg/models"
@@ -24,22 +25,22 @@ func GetOneRestaurant(c *gin.Context) {
 }
 
 func CreateTable(c *gin.Context) {
-    restaurantID := c.Param("id")
+	restaurantID := c.Param("id")
 
-    var tablePayload models.Table
-    if err := c.ShouldBindJSON(&tablePayload); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input, please check your data"})
-        return
-    }
+	var tablePayload models.Table
+	if err := c.ShouldBindJSON(&tablePayload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input, please check your data"})
+		return
+	}
 
-    ctx := c.Request.Context()
-    table, err := services.CreateTable(ctx, restaurantID, tablePayload)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"failed to create a new table": err.Error()})
-        return
-    }
+	ctx := c.Request.Context()
+	table, err := services.CreateTable(ctx, restaurantID, tablePayload)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"failed to create a new table": err.Error()})
+		return
+	}
 
-    c.JSON(http.StatusOK, table)
+	c.JSON(http.StatusOK, table)
 }
 
 func UpdateTable(c *gin.Context) {
@@ -53,15 +54,14 @@ func UpdateTable(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	updatedTable, err := services.UpdateTable(ctx, restaurantID, tableID, tablePayload) 
+	updatedTable, err := services.UpdateTable(ctx, restaurantID, tableID, tablePayload)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"failed to update table": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, updatedTable) 
+	c.JSON(http.StatusOK, updatedTable)
 }
-
 
 func DeleteTable(c *gin.Context) {
 	restaurantID := c.Param("id")
@@ -109,4 +109,45 @@ func GetAllTables(c *gin.Context) {
 	c.JSON(http.StatusOK, tables)
 }
 
+func GetOrders(c *gin.Context) {
+	restaurantID := c.Param("id")
+	page := c.Query("page")
 
+	if page == "" {
+		page = "1"
+	}
+
+	pageInt, err := strconv.ParseInt(page, 10, 64)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid page number"})
+		return
+	}
+
+	ctx := c.Request.Context()
+
+	orders, err := services.GetOrders(ctx, restaurantID, pageInt)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"failed to get orders": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, orders)
+}
+
+func GetOrderByID(c *gin.Context) {
+	restaurantID := c.Param("id")
+	orderID := c.Param("orderID")
+
+	ctx := c.Request.Context()
+
+	order, err := services.GetOrderByID(ctx, restaurantID, orderID)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"failed to get order": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, order)
+}
