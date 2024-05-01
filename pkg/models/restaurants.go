@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	pkg "github.com/LambdaaTeam/Emenu/pkg/auth"
+	"github.com/LambdaaTeam/Emenu/pkg/auth"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -93,7 +93,7 @@ func (r *RestaurantRegister) ToRestaurant() *Restaurant {
 		ID:            primitive.NewObjectID(),
 		Name:          r.Name,
 		Email:         r.Email,
-		Password:      pkg.HashPassword(r.Password),
+		Password:      auth.HashPassword(r.Password),
 		Address:       r.Address,
 		Tables:        []Table{},
 		SchemaVersion: RestaurantCurrentSchemaVersion,

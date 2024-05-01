@@ -45,7 +45,7 @@ func main() {
 		v1.GET("/restaurants/:id/tables", controllers.GetAllTables)
 		v1.POST("/restaurants/:id/tables", controllers.CreateTable)
 		v1.GET("/restaurants/:id/tables/:tableId", controllers.GetTableById)
-		v1.POST("/restaurants/:id/tables/:tableId", controllers.AddClientToTable)
+		v1.POST("/restaurants/:id/tables/:tableId", controllers.AddClientToTable) // Add client to table (no auth)
 		v1.PATCH("/restaurants/:id/tables/:tableId", controllers.UpdateTable)
 		v1.DELETE("/restaurants/:id/tables/:tableId", controllers.DeleteTable)
 
