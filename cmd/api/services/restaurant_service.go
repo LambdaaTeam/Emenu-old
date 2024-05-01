@@ -188,7 +188,7 @@ func DeleteTable(ctx context.Context, restaurantID string, tableID string) error
 	return fmt.Errorf("table not found")
 }
 
-func GetOrderByID(ctx context.Context, restaurantID string, orderID string) (*models.Order, error) {
+func GetOrderByID(ctx context.Context, restaurantID string, orderID string) (*models.PublicOrder, error) {
 	var order models.Order
 
 	orderObjID, err := primitive.ObjectIDFromHex(orderID)
@@ -202,10 +202,10 @@ func GetOrderByID(ctx context.Context, restaurantID string, orderID string) (*mo
 		return nil, fmt.Errorf("order not found")
 	}
 
-	return &order, nil
+	return order.ToPublic(), nil
 }
 
-func GetOrders(ctx context.Context, restaurantID string, page int64) (*[]models.Order, error) {
+func GetOrders(ctx context.Context, restaurantID string, page int64) (*[]models.PublicOrder, error) {
 	var orders []models.Order
 
 	objID, err := primitive.ObjectIDFromHex(restaurantID)
@@ -232,5 +232,399 @@ func GetOrders(ctx context.Context, restaurantID string, page int64) (*[]models.
 		return nil, fmt.Errorf("could not get orders")
 	}
 
-	return &orders, nil
+	publicOrders := make([]models.PublicOrder, len(orders))
+	for i, order := range orders {
+		publicOrders[i] = *order.ToPublic()
+	}
+
+	return &publicOrders, nil
+}
+
+func GetMenu(ctx context.Context, restaurantID string) (*models.PublicMenu, error) {
+	var menu models.Menu
+
+	objID, err := primitive.ObjectIDFromHex(restaurantID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid restaurant ID")
+	}
+
+	err = database.GetCollection("menus").FindOne(ctx, bson.M{"restaurant": objID}).Decode(&menu)
+	if err != nil {
+		return nil, fmt.Errorf("menu not found")
+	}
+
+	return menu.ToPublic(), nil
+}
+
+func AddCategoryToMenu(ctx context.Context, restaurantID string, name string) (*models.PublicMenu, error) {
+	var menu models.Menu
+
+	objID, err := primitive.ObjectIDFromHex(restaurantID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid restaurant ID")
+	}
+
+	err = database.GetCollection("menus").FindOne(ctx, bson.M{"restaurant": objID}).Decode(&menu)
+	if err != nil {
+		return nil, fmt.Errorf("menu not found")
+	}
+
+	menu.Categories = append(menu.Categories, models.Category{
+		ID:   primitive.NewObjectID(),
+		Name: name,
+		Sub:  []models.Subcategory{},
+	})
+
+	_, err = database.GetCollection("menus").UpdateOne(ctx, bson.M{"restaurant": objID}, bson.M{"$set": bson.M{"categories": menu.Categories}})
+	if err != nil {
+		return nil, fmt.Errorf("could not update menu")
+	}
+
+	return menu.ToPublic(), nil
+}
+
+func UpdateCategoryInMenu(ctx context.Context, restaurantID string, categoryID string, name string) (*models.PublicMenu, error) {
+	var menu models.Menu
+
+	objID, err := primitive.ObjectIDFromHex(restaurantID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid restaurant ID")
+	}
+
+	catID, err := primitive.ObjectIDFromHex(categoryID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid category ID")
+	}
+
+	err = database.GetCollection("menus").FindOne(ctx, bson.M{"restaurant": objID}).Decode(&menu)
+	if err != nil {
+		return nil, fmt.Errorf("menu not found")
+	}
+
+	for i, cat := range menu.Categories {
+		if cat.ID == catID {
+			menu.Categories[i].Name = name
+
+			_, err = database.GetCollection("menus").UpdateOne(ctx, bson.M{"restaurant": objID}, bson.M{"$set": bson.M{"categories": menu.Categories}})
+			if err != nil {
+				return nil, fmt.Errorf("could not update menu")
+			}
+
+			return menu.ToPublic(), nil
+		}
+	}
+
+	return nil, fmt.Errorf("category not found")
+}
+
+func DeleteCategoryFromMenu(ctx context.Context, restaurantID string, categoryID string) (*models.PublicMenu, error) {
+	var menu models.Menu
+
+	objID, err := primitive.ObjectIDFromHex(restaurantID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid restaurant ID")
+	}
+
+	catID, err := primitive.ObjectIDFromHex(categoryID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid category ID")
+	}
+
+	err = database.GetCollection("menus").FindOne(ctx, bson.M{"restaurant": objID}).Decode(&menu)
+	if err != nil {
+		return nil, fmt.Errorf("menu not found")
+	}
+
+	for i, cat := range menu.Categories {
+		if cat.ID == catID {
+			menu.Categories = append(menu.Categories[:i], menu.Categories[i+1:]...)
+
+			_, err = database.GetCollection("menus").UpdateOne(ctx, bson.M{"restaurant": objID}, bson.M{"$set": bson.M{"categories": menu.Categories}})
+			if err != nil {
+				return nil, fmt.Errorf("could not update menu")
+			}
+
+			return menu.ToPublic(), nil
+		}
+	}
+
+	return nil, fmt.Errorf("category not found")
+}
+
+func AddSubcategoryToMenu(ctx context.Context, restaurantID string, categoryID string, name string) (*models.PublicMenu, error) {
+	var menu models.Menu
+
+	objID, err := primitive.ObjectIDFromHex(restaurantID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid restaurant ID")
+	}
+
+	catID, err := primitive.ObjectIDFromHex(categoryID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid category ID")
+	}
+
+	err = database.GetCollection("menus").FindOne(ctx, bson.M{"restaurant": objID}).Decode(&menu)
+	if err != nil {
+		return nil, fmt.Errorf("menu not found")
+	}
+
+	for i, category := range menu.Categories {
+		if category.ID == catID {
+			menu.Categories[i].Sub = append(menu.Categories[i].Sub, models.Subcategory{
+				ID:    primitive.NewObjectID(),
+				Name:  name,
+				Items: []models.Item{},
+			})
+
+			_, err = database.GetCollection("menus").UpdateOne(ctx, bson.M{"restaurant": objID}, bson.M{"$set": bson.M{"categories": menu.Categories}})
+			if err != nil {
+				return nil, fmt.Errorf("could not update menu")
+			}
+
+			return menu.ToPublic(), nil
+		}
+	}
+
+	return nil, fmt.Errorf("category not found")
+}
+
+func UpdateSubcategoryInMenu(ctx context.Context, restaurantID string, categoryID string, subcategoryID string, name string) (*models.PublicMenu, error) {
+	var menu models.Menu
+
+	objID, err := primitive.ObjectIDFromHex(restaurantID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid restaurant ID")
+	}
+
+	catID, err := primitive.ObjectIDFromHex(categoryID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid category ID")
+	}
+
+	subcatID, err := primitive.ObjectIDFromHex(subcategoryID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid subcategory ID")
+	}
+
+	err = database.GetCollection("menus").FindOne(ctx, bson.M{"restaurant": objID}).Decode(&menu)
+	if err != nil {
+		return nil, fmt.Errorf("menu not found")
+	}
+
+	for i, category := range menu.Categories {
+		if category.ID == catID {
+			for j, subcategory := range category.Sub {
+				if subcategory.ID == subcatID {
+					menu.Categories[i].Sub[j].Name = name
+
+					_, err = database.GetCollection("menus").UpdateOne(ctx, bson.M{"restaurant": objID}, bson.M{"$set": bson.M{"categories": menu.Categories}})
+					if err != nil {
+						return nil, fmt.Errorf("could not update menu")
+					}
+
+					return menu.ToPublic(), nil
+				}
+			}
+		}
+	}
+
+	return nil, fmt.Errorf("subcategory not found")
+}
+
+func DeleteSubcategoryFromMenu(ctx context.Context, restaurantID string, categoryID string, subcategoryID string) (*models.PublicMenu, error) {
+	var menu models.Menu
+
+	objID, err := primitive.ObjectIDFromHex(restaurantID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid restaurant ID")
+	}
+
+	catID, err := primitive.ObjectIDFromHex(categoryID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid category ID")
+	}
+
+	subcatID, err := primitive.ObjectIDFromHex(subcategoryID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid subcategory ID")
+	}
+
+	err = database.GetCollection("menus").FindOne(ctx, bson.M{"restaurant": objID}).Decode(&menu)
+	if err != nil {
+		return nil, fmt.Errorf("menu not found")
+	}
+
+	for i, category := range menu.Categories {
+		if category.ID == catID {
+			for j, subcategory := range category.Sub {
+				if subcategory.ID == subcatID {
+					menu.Categories[i].Sub = append(menu.Categories[i].Sub[:j], menu.Categories[i].Sub[j+1:]...)
+
+					_, err = database.GetCollection("menus").UpdateOne(ctx, bson.M{"restaurant": objID}, bson.M{"$set": bson.M{"categories": menu.Categories}})
+					if err != nil {
+						return nil, fmt.Errorf("could not update menu")
+					}
+
+					return menu.ToPublic(), nil
+				}
+			}
+		}
+	}
+
+	return nil, fmt.Errorf("subcategory not found")
+}
+
+func AddItemToMenu(ctx context.Context, restaurantID string, categoryID string, subcategoryID string, item models.Item) (*models.PublicMenu, error) {
+	var menu models.Menu
+
+	objID, err := primitive.ObjectIDFromHex(restaurantID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid restaurant ID")
+	}
+
+	catID, err := primitive.ObjectIDFromHex(categoryID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid category ID")
+	}
+
+	subcatID, err := primitive.ObjectIDFromHex(subcategoryID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid subcategory ID")
+	}
+
+	err = database.GetCollection("menus").FindOne(ctx, bson.M{"restaurant": objID}).Decode(&menu)
+	if err != nil {
+		return nil, fmt.Errorf("menu not found")
+	}
+
+	for i, category := range menu.Categories {
+		if category.ID == catID {
+			for j, subcategory := range category.Sub {
+				if subcategory.ID == subcatID {
+					item.ID = primitive.NewObjectID()
+					menu.Categories[i].Sub[j].Items = append(menu.Categories[i].Sub[j].Items, item)
+
+					_, err = database.GetCollection("menus").UpdateOne(ctx, bson.M{"restaurant": objID}, bson.M{"$set": bson.M{"categories": menu.Categories}})
+					if err != nil {
+						return nil, fmt.Errorf("could not update menu")
+					}
+
+					return menu.ToPublic(), nil
+				}
+			}
+		}
+	}
+
+	return nil, fmt.Errorf("subcategory not found")
+}
+
+func UpdateItemInMenu(ctx context.Context, restaurantID string, categoryID string, subcategoryID string, itemID string, item models.Item) (*models.PublicMenu, error) {
+	var menu models.Menu
+
+	objID, err := primitive.ObjectIDFromHex(restaurantID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid restaurant ID")
+	}
+
+	catID, err := primitive.ObjectIDFromHex(categoryID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid category ID")
+	}
+
+	subcatID, err := primitive.ObjectIDFromHex(subcategoryID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid subcategory ID")
+	}
+
+	itemObjID, err := primitive.ObjectIDFromHex(itemID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid item ID")
+	}
+
+	err = database.GetCollection("menus").FindOne(ctx, bson.M{"restaurant": objID}).Decode(&menu)
+	if err != nil {
+		return nil, fmt.Errorf("menu not found")
+	}
+
+	for i, category := range menu.Categories {
+		if category.ID == catID {
+			for j, subcategory := range category.Sub {
+				if subcategory.ID == subcatID {
+					for k, dbitem := range subcategory.Items {
+						if dbitem.ID == itemObjID {
+							menu.Categories[i].Sub[j].Items[k] = models.Item{
+								ID:          dbitem.ID,
+								Name:        item.Name,
+								Description: item.Description,
+								Image:       item.Image,
+								Price:       item.Price,
+							}
+
+							_, err = database.GetCollection("menus").UpdateOne(ctx, bson.M{"restaurant": objID}, bson.M{"$set": bson.M{"categories": menu.Categories}})
+							if err != nil {
+								return nil, fmt.Errorf("could not update menu")
+							}
+
+							return menu.ToPublic(), nil
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return nil, fmt.Errorf("item not found")
+}
+
+func DeleteItemFromMenu(ctx context.Context, restaurantID string, categoryID string, subcategoryID string, itemID string) (*models.PublicMenu, error) {
+	var menu models.Menu
+
+	objID, err := primitive.ObjectIDFromHex(restaurantID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid restaurant ID")
+	}
+
+	catID, err := primitive.ObjectIDFromHex(categoryID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid category ID")
+	}
+
+	subcatID, err := primitive.ObjectIDFromHex(subcategoryID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid subcategory ID")
+	}
+
+	itemObjID, err := primitive.ObjectIDFromHex(itemID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid item ID")
+	}
+
+	err = database.GetCollection("menus").FindOne(ctx, bson.M{"restaurant": objID}).Decode(&menu)
+	if err != nil {
+		return nil, fmt.Errorf("menu not found")
+	}
+
+	for i, category := range menu.Categories {
+		if category.ID == catID {
+			for j, subcategory := range category.Sub {
+				if subcategory.ID == subcatID {
+					for k, item := range subcategory.Items {
+						if item.ID == itemObjID {
+							menu.Categories[i].Sub[j].Items = append(menu.Categories[i].Sub[j].Items[:k], menu.Categories[i].Sub[j].Items[k+1:]...)
+
+							_, err = database.GetCollection("menus").UpdateOne(ctx, bson.M{"restaurant": objID}, bson.M{"$set": bson.M{"categories": menu.Categories}})
+							if err != nil {
+								return nil, fmt.Errorf("could not update menu")
+							}
+
+							return menu.ToPublic(), nil
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return nil, fmt.Errorf("item not found")
 }

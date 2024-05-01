@@ -34,16 +34,41 @@ func main() {
 
 	v1 := r.Group("/api/v1")
 	{
+		// Login and Register
 		v1.POST("/login", controllers.Login)
 		v1.POST("/register", controllers.Register)
+
+		// Restaurants
 		v1.GET("/restaurants/:id", controllers.GetOneRestaurant)
+
+		// Tables
 		v1.GET("/restaurants/:id/tables", controllers.GetAllTables)
 		v1.GET("/restaurants/:id/tables/:tableId", controllers.GetTableById)
 		v1.POST("/restaurants/:id/tables", controllers.CreateTable)
 		v1.PATCH("/restaurants/:id/tables/:tableId", controllers.UpdateTable)
 		v1.DELETE("/restaurants/:id/tables/:tableId", controllers.DeleteTable)
+
+		// Orders
 		v1.GET("/restaurants/:id/orders", controllers.GetOrders)
 		v1.GET("/restaurants/:id/orders/:orderId", controllers.GetOrderByID)
+
+		// Menu
+		v1.GET("/restaurants/:id/menu", controllers.GetMenu)
+
+		// Menu Categories
+		v1.POST("/restaurants/:id/menu/categories", controllers.AddCategoryToMenu)
+		v1.PATCH("/restaurants/:id/menu/categories/:categoryId", controllers.UpdateCategory)
+		v1.DELETE("/restaurants/:id/menu/categories/:categoryId", controllers.DeleteCategory)
+
+		// Menu Subcategories
+		v1.POST("/restaurants/:id/menu/categories/:categoryId/subcategories", controllers.AddSubcategoryToCategory)
+		v1.PATCH("/restaurants/:id/menu/categories/:categoryId/subcategories/:subcategoryId", controllers.UpdateSubcategory)
+		v1.DELETE("/restaurants/:id/menu/categories/:categoryId/subcategories/:subcategoryId", controllers.DeleteSubcategory)
+
+		// Menu Items
+		v1.POST("/restaurants/:id/menu/categories/:categoryId/subcategories/:subcategoryId/items", controllers.AddItemToMenu)
+		v1.PATCH("/restaurants/:id/menu/categories/:categoryId/subcategories/:subcategoryId/items/:itemId", controllers.UpdateItem)
+		v1.DELETE("/restaurants/:id/menu/categories/:categoryId/subcategories/:subcategoryId/items/:itemId", controllers.DeleteItem)
 	}
 
 	r.Run()

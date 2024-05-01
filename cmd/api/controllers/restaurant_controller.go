@@ -39,7 +39,7 @@ func CreateTable(c *gin.Context) {
 	ctx := c.Request.Context()
 	table, err := services.CreateTable(ctx, restaurantID, tablePayload.Number)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"failed to create a new table": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -59,7 +59,7 @@ func UpdateTable(c *gin.Context) {
 	ctx := c.Request.Context()
 	updatedTable, err := services.UpdateTable(ctx, restaurantID, tableID, tablePayload)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"failed to update table": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -90,7 +90,7 @@ func GetTableById(c *gin.Context) {
 	table, err := services.GetTableById(ctx, restaurantID, tableID)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"failed to get table": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -105,7 +105,7 @@ func GetAllTables(c *gin.Context) {
 	tables, err := services.GetAllTables(ctx, restaurantID)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"failed to get all tables": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -132,7 +132,7 @@ func GetOrders(c *gin.Context) {
 	orders, err := services.GetOrders(ctx, restaurantID, pageInt)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"failed to get orders": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -141,16 +141,216 @@ func GetOrders(c *gin.Context) {
 
 func GetOrderByID(c *gin.Context) {
 	restaurantID := c.Param("id")
-	orderID := c.Param("orderID")
+	orderID := c.Param("orderId")
 
 	ctx := c.Request.Context()
 
 	order, err := services.GetOrderByID(ctx, restaurantID, orderID)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"failed to get order": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, order)
+}
+
+func GetMenu(c *gin.Context) {
+	restaurantID := c.Param("id")
+
+	ctx := c.Request.Context()
+
+	menu, err := services.GetMenu(ctx, restaurantID)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, menu)
+}
+
+func AddCategoryToMenu(c *gin.Context) {
+	restaurantID := c.Param("id")
+
+	var categoryPayload struct {
+		Name string `json:"name" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&categoryPayload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input, please check your data"})
+		return
+	}
+
+	ctx := c.Request.Context()
+	menu, err := services.AddCategoryToMenu(ctx, restaurantID, categoryPayload.Name)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, menu)
+}
+
+func UpdateCategory(c *gin.Context) {
+	restaurantID := c.Param("id")
+	categoryID := c.Param("categoryId")
+
+	var categoryPayload struct {
+		Name string `json:"name" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&categoryPayload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input, please check your data"})
+		return
+	}
+
+	ctx := c.Request.Context()
+	updatedCategory, err := services.UpdateCategoryInMenu(ctx, restaurantID, categoryID, categoryPayload.Name)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, updatedCategory)
+}
+
+func DeleteCategory(c *gin.Context) {
+	restaurantID := c.Param("id")
+	categoryID := c.Param("categoryId")
+
+	ctx := c.Request.Context()
+	menu, err := services.DeleteCategoryFromMenu(ctx, restaurantID, categoryID)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, menu)
+}
+
+func AddSubcategoryToCategory(c *gin.Context) {
+	restaurantID := c.Param("id")
+	categoryID := c.Param("categoryId")
+
+	var subcategoryPayload struct {
+		Name string `json:"name" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&subcategoryPayload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input, please check your data"})
+		return
+	}
+
+	ctx := c.Request.Context()
+	menu, err := services.AddSubcategoryToMenu(ctx, restaurantID, categoryID, subcategoryPayload.Name)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, menu)
+}
+
+func UpdateSubcategory(c *gin.Context) {
+	restaurantID := c.Param("id")
+	categoryID := c.Param("categoryId")
+	subcategoryID := c.Param("subcategoryId")
+
+	var subcategoryPayload struct {
+		Name string `json:"name" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&subcategoryPayload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input, please check your data"})
+		return
+	}
+
+	ctx := c.Request.Context()
+	updatedSubcategory, err := services.UpdateSubcategoryInMenu(ctx, restaurantID, categoryID, subcategoryID, subcategoryPayload.Name)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, updatedSubcategory)
+}
+
+func DeleteSubcategory(c *gin.Context) {
+	restaurantID := c.Param("id")
+	categoryID := c.Param("categoryId")
+	subcategoryID := c.Param("subcategoryId")
+
+	ctx := c.Request.Context()
+	menu, err := services.DeleteSubcategoryFromMenu(ctx, restaurantID, categoryID, subcategoryID)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, menu)
+}
+
+func AddItemToMenu(c *gin.Context) {
+	restaurantID := c.Param("id")
+	categoryID := c.Param("categoryId")
+	subcategoryID := c.Param("subcategoryId")
+
+	var itemPayload models.Item
+
+	if err := c.ShouldBindJSON(&itemPayload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input, please check your data"})
+		return
+	}
+
+	ctx := c.Request.Context()
+	menu, err := services.AddItemToMenu(ctx, restaurantID, categoryID, subcategoryID, itemPayload)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, menu)
+}
+
+func UpdateItem(c *gin.Context) {
+	restaurantID := c.Param("id")
+	categoryID := c.Param("categoryId")
+	subcategoryID := c.Param("subcategoryId")
+	itemID := c.Param("itemId")
+
+	var itemPayload models.Item
+
+	if err := c.ShouldBindJSON(&itemPayload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input, please check your data"})
+		return
+	}
+
+	ctx := c.Request.Context()
+	updatedItem, err := services.UpdateItemInMenu(ctx, restaurantID, categoryID, subcategoryID, itemID, itemPayload)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, updatedItem)
+}
+
+func DeleteItem(c *gin.Context) {
+	restaurantID := c.Param("id")
+	categoryID := c.Param("categoryId")
+	subcategoryID := c.Param("subcategoryId")
+	itemID := c.Param("itemId")
+
+	ctx := c.Request.Context()
+	menu, err := services.DeleteItemFromMenu(ctx, restaurantID, categoryID, subcategoryID, itemID)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, menu)
 }
