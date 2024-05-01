@@ -43,14 +43,17 @@ func main() {
 
 		// Tables
 		v1.GET("/restaurants/:id/tables", controllers.GetAllTables)
-		v1.GET("/restaurants/:id/tables/:tableId", controllers.GetTableById)
 		v1.POST("/restaurants/:id/tables", controllers.CreateTable)
+		v1.GET("/restaurants/:id/tables/:tableId", controllers.GetTableById)
+		v1.POST("/restaurants/:id/tables/:tableId", controllers.AddClientToTable)
 		v1.PATCH("/restaurants/:id/tables/:tableId", controllers.UpdateTable)
 		v1.DELETE("/restaurants/:id/tables/:tableId", controllers.DeleteTable)
 
 		// Orders
 		v1.GET("/restaurants/:id/orders", controllers.GetOrders)
 		v1.GET("/restaurants/:id/orders/:orderId", controllers.GetOrderByID)
+		v1.POST("/restaurants/:id/orders/:orderId", controllers.AddOrderItem)
+		v1.PATCH("/restaurants/:id/orders/:orderId", controllers.UpdateOrderItem)
 
 		// Menu
 		v1.GET("/restaurants/:id/menu", controllers.GetMenu)

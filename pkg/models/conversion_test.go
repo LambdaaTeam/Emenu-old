@@ -55,7 +55,7 @@ func TestOrders(t *testing.T) {
 		order := models.Order{
 			ID:           primitive.NewObjectID(),
 			RestaurantID: primitive.NewObjectID(),
-			TableID:      "1",
+			TableID:      primitive.NewObjectID(),
 			Status:       models.OrderStatusOpen,
 			Value:        0,
 			Client: models.Client{

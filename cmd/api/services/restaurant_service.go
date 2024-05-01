@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/LambdaaTeam/Emenu/pkg/database"
 	"github.com/LambdaaTeam/Emenu/pkg/models"
@@ -203,6 +204,87 @@ func GetOrderByID(ctx context.Context, restaurantID string, orderID string) (*mo
 	}
 
 	return order.ToPublic(), nil
+}
+
+func AddOrderItem(ctx context.Context, restaurantID string, orderID string, item models.OrderItem) (*models.PublicOrder, error) {
+	var order models.Order
+
+	if item.Quantity <= 0 {
+		return nil, fmt.Errorf("invalid quantity")
+	}
+
+	orderObjID, err := primitive.ObjectIDFromHex(orderID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid order ID")
+	}
+
+	dbItem, err := GetItemFromMenu(ctx, restaurantID, item.ID.Hex())
+	if err != nil {
+		return nil, fmt.Errorf("item not found")
+	}
+
+	err = database.GetCollection("orders").FindOne(ctx, bson.M{"_id": orderObjID}).Decode(&order)
+	if err != nil {
+		return nil, fmt.Errorf("order not found")
+	}
+
+	order.Items = append(order.Items, models.OrderItem{
+		ID:          dbItem.ID,
+		Quantity:    item.Quantity,
+		Status:      models.ItemStatusToPrepare,
+		Observation: item.Observation,
+	})
+
+	_, err = database.GetCollection("orders").UpdateOne(ctx, bson.M{"_id": orderObjID}, bson.M{"$set": bson.M{"items": order.Items}})
+	if err != nil {
+		return nil, fmt.Errorf("could not update order")
+	}
+
+	return order.ToPublic(), nil
+}
+
+func UpdateOrderItem(ctx context.Context, restaurantID string, orderID string, item models.OrderItem) (*models.PublicOrder, error) {
+	var order models.Order
+
+	orderObjID, err := primitive.ObjectIDFromHex(orderID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid order ID")
+	}
+
+	err = database.GetCollection("orders").FindOne(ctx, bson.M{"_id": orderObjID}).Decode(&order)
+	if err != nil {
+		return nil, fmt.Errorf("order not found")
+	}
+
+	for i, orderItem := range order.Items {
+		if orderItem.ID == item.ID {
+			if item.Quantity != 0 {
+				order.Items[i].Quantity = item.Quantity
+			}
+
+			if item.Status != "" {
+				if item.Status != models.ItemStatusToPrepare &&
+					item.Status != models.ItemStatusPreparing &&
+					item.Status != models.ItemStatusReady &&
+					item.Status != models.ItemStatusDelivered {
+					return nil, fmt.Errorf("invalid item status")
+				}
+
+				order.Items[i].Status = item.Status
+			}
+
+			order.Items[i].Observation = item.Observation
+
+			_, err = database.GetCollection("orders").UpdateOne(ctx, bson.M{"_id": orderObjID}, bson.M{"$set": bson.M{"items": order.Items}})
+			if err != nil {
+				return nil, fmt.Errorf("could not update order")
+			}
+
+			return order.ToPublic(), nil
+		}
+	}
+
+	return nil, fmt.Errorf("item not found")
 }
 
 func GetOrders(ctx context.Context, restaurantID string, page int64) (*[]models.PublicOrder, error) {
@@ -519,6 +601,37 @@ func AddItemToMenu(ctx context.Context, restaurantID string, categoryID string, 
 	return nil, fmt.Errorf("subcategory not found")
 }
 
+func GetItemFromMenu(ctx context.Context, restaurantID string, itemID string) (*models.Item, error) {
+	var menu models.Menu
+
+	objID, err := primitive.ObjectIDFromHex(restaurantID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid restaurant ID")
+	}
+
+	itemObjID, err := primitive.ObjectIDFromHex(itemID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid item ID")
+	}
+
+	err = database.GetCollection("menus").FindOne(ctx, bson.M{"restaurant": objID}).Decode(&menu)
+	if err != nil {
+		return nil, fmt.Errorf("menu not found")
+	}
+
+	for _, category := range menu.Categories {
+		for _, subcategory := range category.Sub {
+			for _, dbitem := range subcategory.Items {
+				if dbitem.ID == itemObjID {
+					return &dbitem, nil
+				}
+			}
+		}
+	}
+
+	return nil, fmt.Errorf("item not found")
+}
+
 func UpdateItemInMenu(ctx context.Context, restaurantID string, categoryID string, subcategoryID string, itemID string, item models.Item) (*models.PublicMenu, error) {
 	var menu models.Menu
 
@@ -627,4 +740,56 @@ func DeleteItemFromMenu(ctx context.Context, restaurantID string, categoryID str
 	}
 
 	return nil, fmt.Errorf("item not found")
+}
+
+func AddClientToTable(ctx context.Context, restaurantID string, tableID string, client models.Client) (*models.PublicOrder, error) {
+	var restaurant models.Restaurant
+
+	objID, err := primitive.ObjectIDFromHex(restaurantID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid restaurant ID")
+	}
+
+	tableObjID, err := primitive.ObjectIDFromHex(tableID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid table ID")
+	}
+
+	err = database.GetCollection("restaurants").FindOne(ctx, bson.M{"_id": objID}).Decode(&restaurant)
+	if err != nil {
+		return nil, fmt.Errorf("restaurant not found")
+	}
+
+	for i, table := range restaurant.Tables {
+		if table.ID == tableObjID {
+			restaurant.Tables[i].Occupants = append(restaurant.Tables[i].Occupants, client)
+
+			_, err = database.GetCollection("restaurants").UpdateOne(ctx, bson.M{"_id": objID}, bson.M{"$set": bson.M{"tables": restaurant.Tables}})
+			if err != nil {
+				return nil, fmt.Errorf("could not update restaurant tables")
+			}
+
+			order := models.Order{
+				ID:            primitive.NewObjectID(),
+				RestaurantID:  objID,
+				TableID:       tableObjID,
+				Status:        models.OrderStatusOpen,
+				Items:         []models.OrderItem{},
+				Client:        client,
+				SchemaVersion: models.OrderCurrentSchemaVersion,
+				CreatedAt:     time.Now(),
+				UpdatedAt:     time.Now(),
+			}
+
+			// TODO: push to the kitchen queue
+			_, err = database.GetCollection("orders").InsertOne(ctx, order)
+			if err != nil {
+				return nil, fmt.Errorf("could not create order")
+			}
+
+			return order.ToPublic(), nil
+		}
+	}
+
+	return nil, fmt.Errorf("table not found")
 }

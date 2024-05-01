@@ -139,6 +139,48 @@ func GetOrders(c *gin.Context) {
 	c.JSON(http.StatusOK, orders)
 }
 
+func AddOrderItem(c *gin.Context) {
+	restaurantID := c.Param("id")
+	orderID := c.Param("orderId")
+
+	var itemPayload models.OrderItem
+
+	if err := c.ShouldBindJSON(&itemPayload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input, please check your data"})
+		return
+	}
+
+	ctx := c.Request.Context()
+	order, err := services.AddOrderItem(ctx, restaurantID, orderID, itemPayload)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, order)
+}
+
+func UpdateOrderItem(c *gin.Context) {
+	restaurantID := c.Param("id")
+	orderID := c.Param("orderId")
+
+	var itemPayload models.OrderItem
+
+	if err := c.ShouldBindJSON(&itemPayload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input, please check your data"})
+		return
+	}
+
+	ctx := c.Request.Context()
+	order, err := services.UpdateOrderItem(ctx, restaurantID, orderID, itemPayload)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, order)
+}
+
 func GetOrderByID(c *gin.Context) {
 	restaurantID := c.Param("id")
 	orderID := c.Param("orderId")
@@ -353,4 +395,24 @@ func DeleteItem(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, menu)
+}
+
+func AddClientToTable(c *gin.Context) {
+	restaurantID := c.Param("id")
+	tableID := c.Param("tableId")
+
+	var clientPayload models.Client
+	if err := c.ShouldBindJSON(&clientPayload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input, please check your data"})
+		return
+	}
+
+	ctx := c.Request.Context()
+	table, err := services.AddClientToTable(ctx, restaurantID, tableID, clientPayload)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, table)
 }
