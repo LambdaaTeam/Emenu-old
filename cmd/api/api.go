@@ -34,7 +34,7 @@ func main() {
 
 	v1 := r.Group("/api/v1")
 	{
-		// Login and Register
+		// Auth
 		v1.POST("/login", controllers.Login)
 		v1.POST("/register", controllers.Register)
 
