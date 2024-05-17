@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/LambdaaTeam/Emenu/cmd/api/services"
+	"github.com/LambdaaTeam/Emenu/pkg/auth"
 	"github.com/LambdaaTeam/Emenu/pkg/models"
 	"github.com/gin-gonic/gin"
 )
@@ -25,7 +26,7 @@ func GetOneRestaurant(c *gin.Context) {
 }
 
 func CreateTable(c *gin.Context) {
-	restaurantID := c.Param("id")
+	restaurantID := c.MustGet("restaurant").(string)
 
 	var tablePayload struct {
 		Number int `json:"number" binding:"required"`
@@ -47,7 +48,7 @@ func CreateTable(c *gin.Context) {
 }
 
 func UpdateTable(c *gin.Context) {
-	restaurantID := c.Param("id")
+	restaurantID := c.MustGet("restaurant").(string)
 	tableID := c.Param("tableId")
 
 	var tablePayload models.Table
@@ -67,7 +68,7 @@ func UpdateTable(c *gin.Context) {
 }
 
 func DeleteTable(c *gin.Context) {
-	restaurantID := c.Param("id")
+	restaurantID := c.MustGet("restaurant").(string)
 	tableID := c.Param("tableId")
 
 	ctx := c.Request.Context()
@@ -82,7 +83,7 @@ func DeleteTable(c *gin.Context) {
 }
 
 func GetTableById(c *gin.Context) {
-	restaurantID := c.Param("id")
+	restaurantID := c.MustGet("restaurant").(string)
 	tableID := c.Param("tableId")
 
 	ctx := c.Request.Context()
@@ -98,8 +99,7 @@ func GetTableById(c *gin.Context) {
 }
 
 func GetAllTables(c *gin.Context) {
-	restaurantID := c.Param("id")
-
+	restaurantID := c.MustGet("restaurant").(string)
 	ctx := c.Request.Context()
 
 	tables, err := services.GetAllTables(ctx, restaurantID)
@@ -113,7 +113,7 @@ func GetAllTables(c *gin.Context) {
 }
 
 func GetOrders(c *gin.Context) {
-	restaurantID := c.Param("id")
+	restaurantID := c.MustGet("restaurant").(string)
 	page := c.Query("page")
 
 	if page == "" {
@@ -161,7 +161,7 @@ func AddOrderItem(c *gin.Context) {
 }
 
 func UpdateOrderItem(c *gin.Context) {
-	restaurantID := c.Param("id")
+	restaurantID := c.MustGet("restaurant").(string)
 	orderID := c.Param("orderId")
 
 	var itemPayload models.OrderItem
@@ -182,7 +182,7 @@ func UpdateOrderItem(c *gin.Context) {
 }
 
 func GetOrderByID(c *gin.Context) {
-	restaurantID := c.Param("id")
+	restaurantID := c.MustGet("restaurant").(string)
 	orderID := c.Param("orderId")
 
 	ctx := c.Request.Context()
@@ -213,7 +213,7 @@ func GetMenu(c *gin.Context) {
 }
 
 func AddCategoryToMenu(c *gin.Context) {
-	restaurantID := c.Param("id")
+	restaurantID := c.MustGet("restaurant").(string)
 
 	var categoryPayload struct {
 		Name string `json:"name" binding:"required"`
@@ -235,7 +235,7 @@ func AddCategoryToMenu(c *gin.Context) {
 }
 
 func UpdateCategory(c *gin.Context) {
-	restaurantID := c.Param("id")
+	restaurantID := c.MustGet("restaurant").(string)
 	categoryID := c.Param("categoryId")
 
 	var categoryPayload struct {
@@ -258,7 +258,7 @@ func UpdateCategory(c *gin.Context) {
 }
 
 func DeleteCategory(c *gin.Context) {
-	restaurantID := c.Param("id")
+	restaurantID := c.MustGet("restaurant").(string)
 	categoryID := c.Param("categoryId")
 
 	ctx := c.Request.Context()
@@ -273,7 +273,7 @@ func DeleteCategory(c *gin.Context) {
 }
 
 func AddSubcategoryToCategory(c *gin.Context) {
-	restaurantID := c.Param("id")
+	restaurantID := c.MustGet("restaurant").(string)
 	categoryID := c.Param("categoryId")
 
 	var subcategoryPayload struct {
@@ -296,7 +296,7 @@ func AddSubcategoryToCategory(c *gin.Context) {
 }
 
 func UpdateSubcategory(c *gin.Context) {
-	restaurantID := c.Param("id")
+	restaurantID := c.MustGet("restaurant").(string)
 	categoryID := c.Param("categoryId")
 	subcategoryID := c.Param("subcategoryId")
 
@@ -320,7 +320,7 @@ func UpdateSubcategory(c *gin.Context) {
 }
 
 func DeleteSubcategory(c *gin.Context) {
-	restaurantID := c.Param("id")
+	restaurantID := c.MustGet("restaurant").(string)
 	categoryID := c.Param("categoryId")
 	subcategoryID := c.Param("subcategoryId")
 
@@ -336,7 +336,7 @@ func DeleteSubcategory(c *gin.Context) {
 }
 
 func AddItemToMenu(c *gin.Context) {
-	restaurantID := c.Param("id")
+	restaurantID := c.MustGet("restaurant").(string)
 	categoryID := c.Param("categoryId")
 	subcategoryID := c.Param("subcategoryId")
 
@@ -358,7 +358,7 @@ func AddItemToMenu(c *gin.Context) {
 }
 
 func UpdateItem(c *gin.Context) {
-	restaurantID := c.Param("id")
+	restaurantID := c.MustGet("restaurant").(string)
 	categoryID := c.Param("categoryId")
 	subcategoryID := c.Param("subcategoryId")
 	itemID := c.Param("itemId")
@@ -381,7 +381,7 @@ func UpdateItem(c *gin.Context) {
 }
 
 func DeleteItem(c *gin.Context) {
-	restaurantID := c.Param("id")
+	restaurantID := c.MustGet("restaurant").(string)
 	categoryID := c.Param("categoryId")
 	subcategoryID := c.Param("subcategoryId")
 	itemID := c.Param("itemId")
@@ -407,6 +407,13 @@ func AddClientToTable(c *gin.Context) {
 		return
 	}
 
+	clientToken, err := auth.GenerateClientToken(clientPayload.CPF)
+
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
 	ctx := c.Request.Context()
 	table, err := services.AddClientToTable(ctx, restaurantID, tableID, clientPayload)
 	if err != nil {
@@ -414,5 +421,5 @@ func AddClientToTable(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, table)
+	c.JSON(http.StatusOK, table.AddToken(clientToken))
 }

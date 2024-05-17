@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/LambdaaTeam/Emenu/cmd/api/controllers"
+	"github.com/LambdaaTeam/Emenu/cmd/api/middlewares"
 	"github.com/LambdaaTeam/Emenu/pkg/database"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -37,41 +38,40 @@ func main() {
 		// Auth
 		v1.POST("/login", controllers.Login)
 		v1.POST("/register", controllers.Register)
-
 		// Restaurants
 		v1.GET("/restaurants/:id", controllers.GetOneRestaurant)
 
 		// Tables
-		v1.GET("/restaurants/:id/tables", controllers.GetAllTables)
-		v1.POST("/restaurants/:id/tables", controllers.CreateTable)
-		v1.GET("/restaurants/:id/tables/:tableId", controllers.GetTableById)
+		v1.GET("/restaurants/@me/tables", middlewares.JWTAuthRestaurant(), controllers.GetAllTables)
+		v1.POST("/restaurants/@me/tables", middlewares.JWTAuthRestaurant(), controllers.CreateTable)
+		v1.GET("/restaurants/@me/tables/:tableId", middlewares.JWTAuthRestaurant(), controllers.GetTableById)
 		v1.POST("/restaurants/:id/tables/:tableId", controllers.AddClientToTable) // Add client to table (no auth)
-		v1.PATCH("/restaurants/:id/tables/:tableId", controllers.UpdateTable)
-		v1.DELETE("/restaurants/:id/tables/:tableId", controllers.DeleteTable)
+		v1.PATCH("/restaurants/@me/tables/:tableId", middlewares.JWTAuthRestaurant(), controllers.UpdateTable)
+		v1.DELETE("/restaurants/@me/tables/:tableId", middlewares.JWTAuthRestaurant(), controllers.DeleteTable)
 
 		// Orders
-		v1.GET("/restaurants/:id/orders", controllers.GetOrders)
-		v1.GET("/restaurants/:id/orders/:orderId", controllers.GetOrderByID)
-		v1.POST("/restaurants/:id/orders/:orderId", controllers.AddOrderItem)
-		v1.PATCH("/restaurants/:id/orders/:orderId", controllers.UpdateOrderItem)
+		v1.GET("/restaurants/@me/orders", middlewares.JWTAuthRestaurant(), controllers.GetOrders)
+		v1.GET("/restaurants/@me/orders/:orderId", middlewares.JWTAuthRestaurant(), controllers.GetOrderByID)
+		v1.POST("/restaurants/:id/orders/:orderId", middlewares.JWTAuthClient(), controllers.AddOrderItem)
+		v1.PATCH("/restaurants/@me/orders/:orderId", middlewares.JWTAuthRestaurant(), controllers.UpdateOrderItem)
 
 		// Menu
 		v1.GET("/restaurants/:id/menu", controllers.GetMenu)
 
 		// Menu Categories
-		v1.POST("/restaurants/:id/menu/categories", controllers.AddCategoryToMenu)
-		v1.PATCH("/restaurants/:id/menu/categories/:categoryId", controllers.UpdateCategory)
-		v1.DELETE("/restaurants/:id/menu/categories/:categoryId", controllers.DeleteCategory)
+		v1.POST("/restaurants/@me/menu/categories", middlewares.JWTAuthRestaurant(), controllers.AddCategoryToMenu)
+		v1.PATCH("/restaurants/@me/menu/categories/:categoryId", middlewares.JWTAuthRestaurant(), controllers.UpdateCategory)
+		v1.DELETE("/restaurants/@me/menu/categories/:categoryId", middlewares.JWTAuthRestaurant(), controllers.DeleteCategory)
 
 		// Menu Subcategories
-		v1.POST("/restaurants/:id/menu/categories/:categoryId/subcategories", controllers.AddSubcategoryToCategory)
-		v1.PATCH("/restaurants/:id/menu/categories/:categoryId/subcategories/:subcategoryId", controllers.UpdateSubcategory)
-		v1.DELETE("/restaurants/:id/menu/categories/:categoryId/subcategories/:subcategoryId", controllers.DeleteSubcategory)
+		v1.POST("/restaurants/@me/menu/categories/:categoryId/subcategories", middlewares.JWTAuthRestaurant(), controllers.AddSubcategoryToCategory)
+		v1.PATCH("/restaurants/@me/menu/categories/:categoryId/subcategories/:subcategoryId", middlewares.JWTAuthRestaurant(), controllers.UpdateSubcategory)
+		v1.DELETE("/restaurants/@me/menu/categories/:categoryId/subcategories/:subcategoryId", middlewares.JWTAuthRestaurant(), controllers.DeleteSubcategory)
 
 		// Menu Items
-		v1.POST("/restaurants/:id/menu/categories/:categoryId/subcategories/:subcategoryId/items", controllers.AddItemToMenu)
-		v1.PATCH("/restaurants/:id/menu/categories/:categoryId/subcategories/:subcategoryId/items/:itemId", controllers.UpdateItem)
-		v1.DELETE("/restaurants/:id/menu/categories/:categoryId/subcategories/:subcategoryId/items/:itemId", controllers.DeleteItem)
+		v1.POST("/restaurants/@me/menu/categories/:categoryId/subcategories/:subcategoryId/items", middlewares.JWTAuthRestaurant(), controllers.AddItemToMenu)
+		v1.PATCH("/restaurants/@me/menu/categories/:categoryId/subcategories/:subcategoryId/items/:itemId", middlewares.JWTAuthRestaurant(), controllers.UpdateItem)
+		v1.DELETE("/restaurants/@me/menu/categories/:categoryId/subcategories/:subcategoryId/items/:itemId", middlewares.JWTAuthRestaurant(), controllers.DeleteItem)
 	}
 
 	r.Run()

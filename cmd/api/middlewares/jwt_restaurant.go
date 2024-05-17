@@ -53,7 +53,7 @@ func JWTAuthRestaurant() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("restaurant", restaurant)
+		c.Set("restaurant", restaurant.ID.Hex())
 
 		c.Next()
 	}

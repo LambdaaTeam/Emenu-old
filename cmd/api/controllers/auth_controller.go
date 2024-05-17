@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/LambdaaTeam/Emenu/cmd/api/services"
+	"github.com/LambdaaTeam/Emenu/pkg/auth"
 	"github.com/LambdaaTeam/Emenu/pkg/models"
 	"github.com/gin-gonic/gin"
 )
@@ -50,5 +51,11 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, restaurant)
+	restaurantToken, err := auth.GenerateRestaurantToken(restaurant.ID)
+
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+	}
+
+	c.JSON(http.StatusOK, restaurantToken)
 }

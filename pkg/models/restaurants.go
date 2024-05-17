@@ -23,6 +23,7 @@ type Table struct {
 	Occupants []Client           `json:"occupants"`
 }
 
+
 type Restaurant struct {
 	ID       primitive.ObjectID `json:"id" bson:"_id"`
 	Name     string             `json:"name"`
@@ -35,7 +36,7 @@ type Restaurant struct {
 		Number   int    `json:"number"`
 		Street   string `json:"street"`
 		Other    string `json:"other"`
-	}
+	} `json:"address"`
 	Tables        []Table   `json:"tables"`
 	SchemaVersion int       `json:"schema_version"`
 	CreatedAt     time.Time `json:"created_at"`
@@ -52,7 +53,7 @@ type PublicRestaurant struct {
 		Number   int    `json:"number"`
 		Street   string `json:"street"`
 		Other    string `json:"other"`
-	}
+	} `json:"address"`
 	Tables    []Table   `json:"tables"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
