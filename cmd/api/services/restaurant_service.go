@@ -92,8 +92,10 @@ func CreateTable(ctx context.Context, id string, number int) (*models.Table, err
 		return nil, fmt.Errorf("restaurant not found")
 	}
 
+    tableId := primitive.NewObjectID()
+    
 	shortnerBody, err := json.Marshal(map[string]string{
-		"url": fmt.Sprintf("https://menu.emenu.psykka.xyz/%s?table=%d", id, number),
+		"url": fmt.Sprintf("https://menu.emenu.psykka.xyz/%s?table=%d&table_id=%s", id, number, tableId.Hex()),
 	})
 
 	if err != nil {
@@ -114,7 +116,7 @@ func CreateTable(ctx context.Context, id string, number int) (*models.Table, err
 	}
 
 	table := models.Table{
-		ID:        primitive.NewObjectID(),
+		ID:        tableId,
 		Number:    number,
 		Url:       fmt.Sprintf("https://short.emenu.psykka.xyz/%s", shortnerRespBody["short"]),
 		Status:    models.TableStatusAvailable,
@@ -805,6 +807,16 @@ func AddClientToTable(ctx context.Context, restaurantID string, tableID string, 
 			}
 
 			// TODO: push to the kitchen queue
+            packet := json.Marshal(map[string]interface{}{
+
+
+			shortnerResp, err := http.Post("https://ws.emenu.psykka.xyz/nofity", "application/json")
+
+			if err != nil {
+				return nil, fmt.Errorf("could not generate short URL")
+			}
+			defer shortnerResp.Body.Close()
+
 			_, err = database.GetCollection("orders").InsertOne(ctx, order)
 			if err != nil {
 				return nil, fmt.Errorf("could not create order")
