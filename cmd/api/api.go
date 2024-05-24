@@ -29,6 +29,8 @@ func main() {
 
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
+	config.AllowHeaders = []string{"Authorization", "Content-Type"}
+	config.AllowMethods = []string{"GET", "POST", "PATCH", "DELETE"}
 	r.Use(cors.New(config))
 
 	r.GET("/", controllers.HealthCheck)
@@ -38,6 +40,7 @@ func main() {
 		// Auth
 		v1.POST("/login", controllers.Login)
 		v1.POST("/register", controllers.Register)
+
 		// Restaurants
 		v1.GET("/restaurants/:id", controllers.GetOneRestaurant)
 

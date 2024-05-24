@@ -1,8 +1,11 @@
 package services
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/LambdaaTeam/Emenu/pkg/database"
@@ -89,11 +92,31 @@ func CreateTable(ctx context.Context, id string, number int) (*models.Table, err
 		return nil, fmt.Errorf("restaurant not found")
 	}
 
-	// TODO: generate a unique URL
+	shortnerBody, err := json.Marshal(map[string]string{
+		"url": fmt.Sprintf("https://menu.emenu.psykka.xyz/%s?table=%d", id, number),
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("could not generate short URL")
+	}
+
+	shortnerResp, err := http.Post("https://short.emenu.psykka.xyz/", "application/json", bytes.NewBuffer(shortnerBody))
+
+	if err != nil {
+		return nil, fmt.Errorf("could not generate short URL")
+	}
+	defer shortnerResp.Body.Close()
+
+	var shortnerRespBody map[string]string
+	err = json.NewDecoder(shortnerResp.Body).Decode(&shortnerRespBody)
+	if err != nil {
+		return nil, fmt.Errorf("could not generate short URL")
+	}
+
 	table := models.Table{
 		ID:        primitive.NewObjectID(),
 		Number:    number,
-		Url:       "",
+		Url:       fmt.Sprintf("https://short.emenu.psykka.xyz/%s", shortnerRespBody["short"]),
 		Status:    models.TableStatusAvailable,
 		Occupants: []models.Client{},
 	}
