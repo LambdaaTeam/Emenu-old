@@ -92,8 +92,8 @@ func CreateTable(ctx context.Context, id string, number int) (*models.Table, err
 		return nil, fmt.Errorf("restaurant not found")
 	}
 
-    tableId := primitive.NewObjectID()
-    
+	tableId := primitive.NewObjectID()
+
 	shortnerBody, err := json.Marshal(map[string]string{
 		"url": fmt.Sprintf("https://menu.emenu.psykka.xyz/%s?table=%d&table_id=%s", id, number, tableId.Hex()),
 	})
@@ -794,8 +794,9 @@ func AddClientToTable(ctx context.Context, restaurantID string, tableID string, 
 				return nil, fmt.Errorf("could not update restaurant tables")
 			}
 
+			orderId := primitive.NewObjectID()
 			order := models.Order{
-				ID:            primitive.NewObjectID(),
+				ID:            orderId,
 				RestaurantID:  objID,
 				TableID:       tableObjID,
 				Status:        models.OrderStatusOpen,
@@ -806,21 +807,27 @@ func AddClientToTable(ctx context.Context, restaurantID string, tableID string, 
 				UpdatedAt:     time.Now(),
 			}
 
-			// TODO: push to the kitchen queue
-            packet := json.Marshal(map[string]interface{}{
-
-
-			shortnerResp, err := http.Post("https://ws.emenu.psykka.xyz/nofity", "application/json")
-
-			if err != nil {
-				return nil, fmt.Errorf("could not generate short URL")
-			}
-			defer shortnerResp.Body.Close()
-
 			_, err = database.GetCollection("orders").InsertOne(ctx, order)
 			if err != nil {
 				return nil, fmt.Errorf("could not create order")
 			}
+
+			packet, err := json.Marshal(map[string]interface{}{
+				"type":          "update_table_status",
+				"restaurant_id": restaurantID,
+				"order_id":      orderId.Hex(),
+				"data":          models.TableStatusOccupied,
+			})
+
+			if err != nil {
+				return nil, fmt.Errorf("could not notify ws")
+			}
+
+			response, err := http.Post("https://ws.emenu.psykka.xyz/nofity", "application/json", bytes.NewBuffer(packet))
+			if err != nil {
+				return nil, fmt.Errorf("could not notify ws")
+			}
+			defer response.Body.Close()
 
 			return order.ToPublic(), nil
 		}
