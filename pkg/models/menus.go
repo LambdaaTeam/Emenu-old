@@ -16,16 +16,10 @@ type Item struct {
 	Price       float64            `json:"price"`
 }
 
-type Subcategory struct {
+type Category struct {
 	ID    primitive.ObjectID `json:"id" bson:"_id"`
 	Name  string             `json:"name"`
 	Items []Item             `json:"items"`
-}
-
-type Category struct {
-	ID   primitive.ObjectID `json:"id" bson:"_id"`
-	Name string             `json:"name"`
-	Sub  []Subcategory      `json:"sub"`
 }
 
 type Menu struct {

@@ -66,15 +66,10 @@ func main() {
 		v1.PATCH("/restaurants/@me/menu/categories/:categoryId", middlewares.JWTAuthRestaurant(), controllers.UpdateCategory)
 		v1.DELETE("/restaurants/@me/menu/categories/:categoryId", middlewares.JWTAuthRestaurant(), controllers.DeleteCategory)
 
-		// Menu Subcategories
-		v1.POST("/restaurants/@me/menu/categories/:categoryId/subcategories", middlewares.JWTAuthRestaurant(), controllers.AddSubcategoryToCategory)
-		v1.PATCH("/restaurants/@me/menu/categories/:categoryId/subcategories/:subcategoryId", middlewares.JWTAuthRestaurant(), controllers.UpdateSubcategory)
-		v1.DELETE("/restaurants/@me/menu/categories/:categoryId/subcategories/:subcategoryId", middlewares.JWTAuthRestaurant(), controllers.DeleteSubcategory)
-
 		// Menu Items
-		v1.POST("/restaurants/@me/menu/categories/:categoryId/subcategories/:subcategoryId/items", middlewares.JWTAuthRestaurant(), controllers.AddItemToMenu)
-		v1.PATCH("/restaurants/@me/menu/categories/:categoryId/subcategories/:subcategoryId/items/:itemId", middlewares.JWTAuthRestaurant(), controllers.UpdateItem)
-		v1.DELETE("/restaurants/@me/menu/categories/:categoryId/subcategories/:subcategoryId/items/:itemId", middlewares.JWTAuthRestaurant(), controllers.DeleteItem)
+		v1.POST("/restaurants/@me/menu/categories/:categoryId/items", middlewares.JWTAuthRestaurant(), controllers.AddItemToMenu)
+		v1.PATCH("/restaurants/@me/menu/categories/:categoryId/items/:itemId", middlewares.JWTAuthRestaurant(), controllers.UpdateItem)
+		v1.DELETE("/restaurants/@me/menu/categories/:categoryId/items/:itemId", middlewares.JWTAuthRestaurant(), controllers.DeleteItem)
 	}
 
 	r.Run()

@@ -272,73 +272,9 @@ func DeleteCategory(c *gin.Context) {
 	c.JSON(http.StatusOK, menu)
 }
 
-func AddSubcategoryToCategory(c *gin.Context) {
-	restaurantID := c.MustGet("restaurant").(string)
-	categoryID := c.Param("categoryId")
-
-	var subcategoryPayload struct {
-		Name string `json:"name" binding:"required"`
-	}
-
-	if err := c.ShouldBindJSON(&subcategoryPayload); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input, please check your data"})
-		return
-	}
-
-	ctx := c.Request.Context()
-	menu, err := services.AddSubcategoryToMenu(ctx, restaurantID, categoryID, subcategoryPayload.Name)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, menu)
-}
-
-func UpdateSubcategory(c *gin.Context) {
-	restaurantID := c.MustGet("restaurant").(string)
-	categoryID := c.Param("categoryId")
-	subcategoryID := c.Param("subcategoryId")
-
-	var subcategoryPayload struct {
-		Name string `json:"name" binding:"required"`
-	}
-
-	if err := c.ShouldBindJSON(&subcategoryPayload); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input, please check your data"})
-		return
-	}
-
-	ctx := c.Request.Context()
-	updatedSubcategory, err := services.UpdateSubcategoryInMenu(ctx, restaurantID, categoryID, subcategoryID, subcategoryPayload.Name)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, updatedSubcategory)
-}
-
-func DeleteSubcategory(c *gin.Context) {
-	restaurantID := c.MustGet("restaurant").(string)
-	categoryID := c.Param("categoryId")
-	subcategoryID := c.Param("subcategoryId")
-
-	ctx := c.Request.Context()
-	menu, err := services.DeleteSubcategoryFromMenu(ctx, restaurantID, categoryID, subcategoryID)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, menu)
-}
-
 func AddItemToMenu(c *gin.Context) {
 	restaurantID := c.MustGet("restaurant").(string)
 	categoryID := c.Param("categoryId")
-	subcategoryID := c.Param("subcategoryId")
 
 	var itemPayload models.Item
 
@@ -348,7 +284,7 @@ func AddItemToMenu(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	menu, err := services.AddItemToMenu(ctx, restaurantID, categoryID, subcategoryID, itemPayload)
+	menu, err := services.AddItemToMenu(ctx, restaurantID, categoryID, itemPayload)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -360,7 +296,6 @@ func AddItemToMenu(c *gin.Context) {
 func UpdateItem(c *gin.Context) {
 	restaurantID := c.MustGet("restaurant").(string)
 	categoryID := c.Param("categoryId")
-	subcategoryID := c.Param("subcategoryId")
 	itemID := c.Param("itemId")
 
 	var itemPayload models.Item
@@ -371,7 +306,7 @@ func UpdateItem(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
-	updatedItem, err := services.UpdateItemInMenu(ctx, restaurantID, categoryID, subcategoryID, itemID, itemPayload)
+	updatedItem, err := services.UpdateItemInMenu(ctx, restaurantID, categoryID, itemID, itemPayload)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -383,11 +318,10 @@ func UpdateItem(c *gin.Context) {
 func DeleteItem(c *gin.Context) {
 	restaurantID := c.MustGet("restaurant").(string)
 	categoryID := c.Param("categoryId")
-	subcategoryID := c.Param("subcategoryId")
 	itemID := c.Param("itemId")
 
 	ctx := c.Request.Context()
-	menu, err := services.DeleteItemFromMenu(ctx, restaurantID, categoryID, subcategoryID, itemID)
+	menu, err := services.DeleteItemFromMenu(ctx, restaurantID, categoryID, itemID)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
