@@ -253,6 +253,8 @@ func AddOrderItem(ctx context.Context, restaurantID string, orderID string, item
 		return nil, fmt.Errorf("order not found")
 	}
 
+	order.Value += dbItem.Price * float64(item.Quantity)
+
 	order.Items = append(order.Items, models.OrderItem{
 		ID:          dbItem.ID,
 		Quantity:    item.Quantity,
@@ -516,6 +518,12 @@ func GetItemFromMenu(ctx context.Context, restaurantID string, itemID string) (*
 			if item.ID == itemObjID {
 				return &item, nil
 			}
+		}
+	}
+
+	for _, item := range menu.Highlights {
+		if item.ID == itemObjID {
+			return &item, nil
 		}
 	}
 
