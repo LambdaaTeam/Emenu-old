@@ -153,7 +153,7 @@ func UpdateTable(ctx context.Context, restaurantID string, tableID string, param
 
 	for i, table := range restaurant.Tables {
 		if table.ID == tableObjID {
-			restaurant.Tables[i] = params
+			restaurant.Tables[i].Number = params.Number
 			restaurant.Tables[i].ID = tableObjID
 
 			if restaurant.Tables[i].Occupants == nil {
@@ -654,7 +654,7 @@ func AddClientToTable(ctx context.Context, restaurantID string, tableID string, 
 				ID:            orderId,
 				RestaurantID:  objID,
 				TableID:       tableObjID,
-				Status:        models.OrderStatusOpen,
+				Status:        models.TableStatusOccupied,
 				Items:         []models.OrderItem{},
 				Client:        client,
 				SchemaVersion: models.OrderCurrentSchemaVersion,
