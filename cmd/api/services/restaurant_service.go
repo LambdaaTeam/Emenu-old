@@ -95,7 +95,7 @@ func CreateTable(ctx context.Context, id string, number int) (*models.Table, err
 	tableId := primitive.NewObjectID()
 
 	shortnerBody, err := json.Marshal(map[string]string{
-		"url": fmt.Sprintf("https://menu.emenu.psykka.xyz/%s?table=%d&table_id=%s", id, number, tableId.Hex()),
+		"url": fmt.Sprintf("https://menu.emenu.psykka.xyz/?restaurantId=%s&table=%d&table_id=%s", id, number, tableId.Hex()),
 	})
 
 	if err != nil {
