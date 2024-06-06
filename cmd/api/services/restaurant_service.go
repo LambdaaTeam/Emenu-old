@@ -671,7 +671,7 @@ func AddClientToTable(ctx context.Context, restaurantID string, tableID string, 
 			packet, err := json.Marshal(map[string]interface{}{
 				"type":          "update_table_status",
 				"restaurant_id": restaurantID,
-				"order_id":      orderId.Hex(),
+				"table_id":      tableID,
 				"data":          models.TableStatusOccupied,
 			})
 

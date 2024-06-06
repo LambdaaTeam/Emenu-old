@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/LambdaaTeam/Emenu/cmd/ws/services"
@@ -36,8 +35,6 @@ func Notify(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
-
-	fmt.Println("res", res)
 
 	BroadcastMessage(res)
 

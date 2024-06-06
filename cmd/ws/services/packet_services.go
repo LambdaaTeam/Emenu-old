@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/LambdaaTeam/Emenu/cmd/ws/shared"
 	"github.com/LambdaaTeam/Emenu/pkg/database"
@@ -120,19 +121,19 @@ func updateItemStatus(ctx context.Context, restaurantID string, orderID string, 
 	}
 }
 
-func updateTableStatus(ctx context.Context, restaurantID string, tableID string, data string) shared.Packet {
+func updateTableStatus(ctx context.Context, restaurantID, tableID, data string) shared.Packet {
 	if data != models.TableStatusOccupied && data != models.TableStatusAvailable && data != models.TableStatusReserved {
 		return shared.NewErrorPacket(restaurantID, "invalid status")
 	}
 
 	resID, err := primitive.ObjectIDFromHex(restaurantID)
 	if err != nil {
-		return shared.NewErrorPacket(restaurantID, err.Error())
+		return shared.NewErrorPacket(restaurantID, fmt.Errorf("invalid restaurant id: %w", err).Error())
 	}
 
 	tblID, err := primitive.ObjectIDFromHex(tableID)
 	if err != nil {
-		return shared.NewErrorPacket(restaurantID, err.Error())
+		return shared.NewErrorPacket(restaurantID, fmt.Errorf("invalid table id: %w", err).Error())
 	}
 
 	if _, err := database.DB.Collection("restaurants").UpdateOne(ctx, bson.M{"_id": resID, "tables._id": tblID}, bson.M{"$set": bson.M{"tables.$.status": data}}); err != nil {
