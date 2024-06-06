@@ -18,6 +18,11 @@ func HandlePacket(ctx context.Context, packet *shared.Packet) shared.Packet {
 		return updateItemStatus(ctx, packet.RestaurantID, packet.OrderID, packet.ItemID, packet.Data)
 	case shared.UpdateTableStatus:
 		return updateTableStatus(ctx, packet.RestaurantID, packet.TableID, packet.Data)
+	case shared.Heartbeat:
+		return shared.Packet{
+			Type: shared.Heartbeat,
+			Data: "connected",
+		}
 	default:
 		return shared.NewErrorPacket(packet.RestaurantID, "invalid packet type")
 	}

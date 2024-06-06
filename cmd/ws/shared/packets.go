@@ -5,6 +5,7 @@ const (
 	UpdateOrderStatus = "update_order_status"
 	UpdateItemStatus  = "update_item_status"
 	UpdateTableStatus = "update_table_status"
+	Heartbeat         = "heartbeat"
 	Error             = "error"
 )
 
