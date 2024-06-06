@@ -643,6 +643,7 @@ func AddClientToTable(ctx context.Context, restaurantID string, tableID string, 
 	for i, table := range restaurant.Tables {
 		if table.ID == tableObjID {
 			restaurant.Tables[i].Occupants = append(restaurant.Tables[i].Occupants, client)
+            restaurant.Tables[i].Status = models.TableStatusOccupied
 
 			_, err = database.GetCollection("restaurants").UpdateOne(ctx, bson.M{"_id": objID}, bson.M{"$set": bson.M{"tables": restaurant.Tables}})
 			if err != nil {
@@ -654,7 +655,7 @@ func AddClientToTable(ctx context.Context, restaurantID string, tableID string, 
 				ID:            orderId,
 				RestaurantID:  objID,
 				TableID:       tableObjID,
-				Status:        models.TableStatusOccupied,
+				Status:        models.OrderStatusOpen,
 				Items:         []models.OrderItem{},
 				Client:        client,
 				SchemaVersion: models.OrderCurrentSchemaVersion,
