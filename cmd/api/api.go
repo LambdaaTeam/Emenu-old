@@ -57,6 +57,7 @@ func main() {
 		v1.GET("/restaurants/@me/orders/:orderId", middlewares.JWTAuthRestaurant(), controllers.GetOrderByID)
 		v1.POST("/restaurants/:id/orders/:orderId", middlewares.JWTAuthClient(), controllers.AddOrderItem)
 		v1.PATCH("/restaurants/@me/orders/:orderId", middlewares.JWTAuthRestaurant(), controllers.UpdateOrderItem)
+		v1.PATCH("/restaurants/@me/orders/:orderId/status", middlewares.JWTAuthRestaurant(), controllers.UpdateOrderStatus)
 
 		// Menu
 		v1.GET("/restaurants/:id/menu", controllers.GetMenu)

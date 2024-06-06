@@ -307,11 +307,69 @@ func UpdateOrderItem(ctx context.Context, restaurantID string, orderID string, i
 				return nil, fmt.Errorf("could not update order")
 			}
 
+			packet, err := json.Marshal(map[string]interface{}{
+				"type":          "update_item_status",
+				"restaurant_id": restaurantID,
+			})
+
+			if err != nil {
+				return nil, fmt.Errorf("could not notify ws")
+			}
+
+			response, err := http.Post("https://ws.emenu.psykka.xyz/notify", "application/json", bytes.NewBuffer(packet))
+			if err != nil {
+				return nil, fmt.Errorf("could not notify ws")
+			}
+			defer response.Body.Close()
+
 			return order.ToPublic(), nil
 		}
 	}
 
 	return nil, fmt.Errorf("item not found")
+}
+
+func UpdateOrderStatus(ctx context.Context, restaurantID string, orderID string, status string) (*models.PublicOrder, error) {
+	var order models.Order
+
+	orderObjID, err := primitive.ObjectIDFromHex(orderID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid order ID")
+	}
+
+	err = database.GetCollection("orders").FindOne(ctx, bson.M{"_id": orderObjID}).Decode(&order)
+	if err != nil {
+		return nil, fmt.Errorf("order not found")
+	}
+
+	if status != models.OrderStatusOpen &&
+		status != models.OrderStatusClosed {
+		return nil, fmt.Errorf("invalid order status")
+	}
+
+	order.Status = status
+
+	_, err = database.GetCollection("orders").UpdateOne(ctx, bson.M{"_id": orderObjID}, bson.M{"$set": bson.M{"status": order.Status}})
+	if err != nil {
+		return nil, fmt.Errorf("could not update order")
+	}
+
+	packet, err := json.Marshal(map[string]interface{}{
+		"type":          "update_order_status",
+		"restaurant_id": restaurantID,
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("could not notify ws")
+	}
+
+	response, err := http.Post("https://ws.emenu.psykka.xyz/notify", "application/json", bytes.NewBuffer(packet))
+	if err != nil {
+		return nil, fmt.Errorf("could not notify ws")
+	}
+	defer response.Body.Close()
+
+	return order.ToPublic(), nil
 }
 
 func GetOrders(ctx context.Context, restaurantID string, page int64) (*[]models.PublicOrder, error) {

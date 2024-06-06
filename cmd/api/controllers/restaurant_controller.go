@@ -181,6 +181,29 @@ func UpdateOrderItem(c *gin.Context) {
 	c.JSON(http.StatusOK, order)
 }
 
+func UpdateOrderStatus(c *gin.Context) {
+	restaurantID := c.MustGet("restaurant").(string)
+	orderID := c.Param("orderId")
+
+	var statusPayload struct {
+		Status string `json:"status" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&statusPayload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input, please check your data"})
+		return
+	}
+
+	ctx := c.Request.Context()
+	order, err := services.UpdateOrderStatus(ctx, restaurantID, orderID, statusPayload.Status)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, order)
+}
+
 func GetOrderByID(c *gin.Context) {
 	restaurantID := c.MustGet("restaurant").(string)
 	orderID := c.Param("orderId")
