@@ -643,7 +643,7 @@ func AddClientToTable(ctx context.Context, restaurantID string, tableID string, 
 	for i, table := range restaurant.Tables {
 		if table.ID == tableObjID {
 			restaurant.Tables[i].Occupants = append(restaurant.Tables[i].Occupants, client)
-            restaurant.Tables[i].Status = models.TableStatusOccupied
+			restaurant.Tables[i].Status = models.TableStatusOccupied
 
 			_, err = database.GetCollection("restaurants").UpdateOne(ctx, bson.M{"_id": objID}, bson.M{"$set": bson.M{"tables": restaurant.Tables}})
 			if err != nil {
@@ -679,7 +679,7 @@ func AddClientToTable(ctx context.Context, restaurantID string, tableID string, 
 				return nil, fmt.Errorf("could not notify ws")
 			}
 
-			response, err := http.Post("https://ws.emenu.psykka.xyz/nofity", "application/json", bytes.NewBuffer(packet))
+			response, err := http.Post("https://ws.emenu.psykka.xyz/notify", "application/json", bytes.NewBuffer(packet))
 			if err != nil {
 				return nil, fmt.Errorf("could not notify ws")
 			}
