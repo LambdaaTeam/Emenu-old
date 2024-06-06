@@ -267,6 +267,21 @@ func AddOrderItem(ctx context.Context, restaurantID string, orderID string, item
 		return nil, fmt.Errorf("could not update order")
 	}
 
+	packet, err := json.Marshal(map[string]interface{}{
+		"type":          "update_order_status",
+		"restaurant_id": restaurantID,
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("could not notify ws")
+	}
+
+	response, err := http.Post("https://ws.emenu.psykka.xyz/notify", "application/json", bytes.NewBuffer(packet))
+	if err != nil {
+		return nil, fmt.Errorf("could not notify ws")
+	}
+	defer response.Body.Close()
+
 	return order.ToPublic(), nil
 }
 
